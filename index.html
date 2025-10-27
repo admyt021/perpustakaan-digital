@@ -1,0 +1,2807 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kegiatan Ramadhan - SMP PGRI CISEWU</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SheetJS (xlsx.js) CDN for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        /* Menggunakan font Inter sebagai bawaan Tailwind */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Sidebar transition */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Styling untuk select dropdown shalat */
+        .select-tidak { background-color: #fee2e2; border-color: #fca5a5; } /* red-100 */
+        .select-munfarid { background-color: #fef9c3; border-color: #fde047; } /* yellow-100 */
+        .select-berjamaah { background-color: #dcfce7; border-color: #86efac; } /* green-100 */
+        
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- ===== LOGIN PAGE ===== -->
+    <div id="login-page" class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div class="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden md:flex">
+            <!-- Bagian Kiri (Sidebar Pilihan Role) -->
+            <div class="w-full md:w-1/3 bg-emerald-600 dark:bg-emerald-700 p-8 text-white">
+                <h2 class="text-3xl font-bold mb-4">Selamat Datang!</h2>
+                <p class="mb-6">Aplikasi Kegiatan Ramadhan SMP PGRI Cisewu.</p>
+                <nav class="flex flex-col space-y-2">
+                    <button id="show-admin-login" class="login-role-btn text-left w-full px-4 py-3 rounded-lg font-semibold bg-white text-emerald-600 dark:bg-gray-700 dark:text-white ring-2 ring-white">
+                        <i data-lucide="user-cog" class="inline-block w-5 h-5 mr-2"></i>
+                        Login Sebagai Admin
+                    </button>
+                    <button id="show-siswa-login" class="login-role-btn text-left w-full px-4 py-3 rounded-lg font-semibold hover:bg-emerald-700 dark:hover:bg-emerald-800">
+                        <i data-lucide="user" class="inline-block w-5 h-5 mr-2"></i>
+                        Login Sebagai Siswa
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Bagian Kanan (Form Login) -->
+            <div class="w-full md:w-2/3 p-8 md:p-12">
+                
+                <!-- Form Login Admin -->
+                <div id="admin-login-form">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Login Admin</h3>
+                    <form id="login-form-admin">
+                        <div class="mb-4">
+                            <label for="admin-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                            <input type="text" id="admin-username" placeholder="Masukkan Username" class="w-full px-4 py-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="admin-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                            <input type="password" id="admin-password" value="12345" class="w-full px-4 py-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" required>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                            Login
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Form Login Siswa -->
+                <div id="siswa-login-form" class="hidden">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Login Siswa</h3>
+                    <form id="login-form-siswa">
+                        <div class="mb-4">
+                            <label for="siswa-nisn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">NISN</label>
+                            <input type="text" id="siswa-nisn" placeholder="Masukkan NISN Anda" class="w-full px-4 py-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="siswa-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                            <input type="password" id="siswa-password" value="12345" class="w-full px-4 py-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" required>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                            Login
+                        </button>
+                    </form>
+                </div>
+                
+                <p id="login-error" class="text-red-500 text-sm mt-4 hidden"></p>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-8">
+                    © 2025 SMP PGRI Cisewu. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN APP PAGE ===== -->
+    <div id="app-page" class="hidden">
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen bg-white dark:bg-gray-800 shadow-lg -translate-x-full md:translate-x-0">
+            <div class="flex flex-col h-full">
+                <!-- Sidebar Header -->
+                <div class="px-6 py-5 border-b dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-emerald-700 dark:text-emerald-400">Hi, <span id="user-name">Pengguna</span>!</h2>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <span id="realtime-date"></span><br>
+                        <span id="realtime-time"></span>
+                    </div>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <nav id="sidebar-menu" class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+                    <!-- Menu Admin -->
+                    <div id="menu-admin" class="hidden">
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-dashboard-admin">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+                        </a>
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-rekapitulasi">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Rekapitulasi
+                        </a>
+                    </div>
+                    
+                    <!-- Menu Siswa -->
+                    <div id="menu-siswa" class="hidden">
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-kegiatan">
+                            <i data-lucide="check-square" class="w-5 h-5 mr-3"></i> Kegiatan Siswa
+                        </a>
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-riwayat">
+                            <i data-lucide="history" class="w-5 h-5 mr-3"></i> Riwayat Pengisian
+                        </a>
+                    </div>
+                    
+                    <!-- Menu Bersama -->
+                    <div class="pt-2 border-t dark:border-gray-700">
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-waktu-sholat">
+                            <i data-lucide="clock" class="w-5 h-5 mr-3"></i> Waktu Sholat
+                        </a>
+                        <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-page="page-baca-quran">
+                            <i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Baca Al-Quran
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+        <!-- Main Content -->
+        <main id="main-content" class="md:ml-64 transition-all duration-300">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 bg-white dark:bg-gray-800 shadow-md">
+                <div class="flex items-center justify-between px-4 py-3 md:px-6">
+                    <!-- Kiri: Burger Menu (Mobile) & Info Sekolah -->
+                    <div class="flex items-center">
+                        <button id="burger-btn" class="md:hidden mr-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                        <div>
+                            <h1 class="text-lg font-bold text-emerald-700 dark:text-emerald-400">SMP PGRI CISEWU</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Jalan S. Parman Rancabuaya Caringin 44169</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Kanan: Tombol Dark Mode & Logout -->
+                    <div class="flex items-center space-x-3">
+                        <button id="logout-btn" class="flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Konten Halaman (Dinamis) -->
+            <div class="p-4 md:p-6 space-y-6">
+                
+                <!-- ===== PAGE: KEGIATAN SISWA (SISWA) ===== -->
+                <div id="page-kegiatan" class="app-page hidden">
+                    <div class="max-w-3xl mx-auto">
+                        <div id="kegiatan-form-container" class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+                            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
+                                <h3 class="text-xl font-semibold flex items-center">
+                                    <i data-lucide="check-square" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                                    Form Kegiatan Ramadhan
+                                </h3>
+                            </div>
+                            <form id="kegiatan-form" class="p-6 space-y-6">
+                                <!-- Bagian 1: Info Siswa & Tanggal -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Siswa</label>
+                                        <input type="text" id="kegiatan-nama" class="mt-1 block w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hari & Tanggal</label>
+                                        <input type="text" id="kegiatan-tanggal" class="mt-1 block w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" readonly>
+                                    </div>
+                                    <!-- Hidden fields for data submission -->
+                                    <input type="hidden" id="kegiatan-nisn">
+                                    <input type="hidden" id="kegiatan-kelas">
+                                </div>
+                                
+                                <!-- Bagian 2: Kegiatan Shalat -->
+                                <div>
+                                    <h4 class="font-semibold mb-3">Kegiatan Shalat Wajib & Tarawih</h4>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        <!-- SUBUH -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-subuh" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="sunrise" class="w-4 h-4 mr-2 text-blue-500"></i>Subuh
+                                            </label>
+                                            <select id="shalat-subuh" name="SUBUH" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                        <!-- ZUHUR -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-zuhur" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="sun" class="w-4 h-4 mr-2 text-yellow-500"></i>Zuhur
+                                            </label>
+                                            <select id="shalat-zuhur" name="DZUHUR" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                        <!-- ASAR -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-asar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="cloud-sun" class="w-4 h-4 mr-2 text-orange-500"></i>Asar
+                                            </label>
+                                            <select id="shalat-asar" name="ASHAR" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                        <!-- MAGRIB -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-magrib" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="sunset" class="w-4 h-4 mr-2 text-red-500"></i>Magrib
+                                            </label>
+                                            <select id="shalat-magrib" name="MAGHRIB" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                        <!-- ISA -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-isa" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="moon" class="w-4 h-4 mr-2 text-indigo-500"></i>Isya
+                                            </label>
+                                            <select id="shalat-isa" name="ISYA" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                        <!-- TARAWIH -->
+                                        <div class="shalat-item">
+                                            <label for="shalat-tarawih" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                                                <i data-lucide="star" class="w-4 h-4 mr-2 text-purple-500"></i>Tarawih
+                                            </label>
+                                            <select id="shalat-tarawih" name="TARAWIH" class="shalat-select w-full border border-gray-300 rounded-lg px-3 py-2 transition-colors">
+                                                <option value="Tidak">Tidak</option>
+                                                <option value="Munfarid">Munfarid</option>
+                                                <option value="Berjamaah">Berjamaah</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bagian 3: Baca Al-Quran -->
+                                <div>
+                                    <h4 class="font-semibold mb-3">Tadarus Al-Quran</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="quran-surah" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Surah yang dibaca</label>
+                                            <input type="text" id="quran-surah" name="SURAH" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" placeholder="Contoh: Al-Baqarah">
+                                        </div>
+                                        <div>
+                                            <label for="quran-ayat" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ayat yang dibaca</label>
+                                            <input type="text" id="quran-ayat" name="AYAT" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600" placeholder="Contoh: 1-5">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tombol Submit -->
+                                <div class="pt-4 border-t dark:border-gray-700">
+                                    <button type="submit" id="kegiatan-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition duration-200">
+                                        <i data-lucide="send" class="w-5 h-5 mr-2"></i>
+                                        Kirim Laporan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Pesan Status (Loading, Success, Error) -->
+                        <div id="kegiatan-status" class="mt-4 text-center hidden">
+                            <div id="kegiatan-loading" class="hidden flex justify-center items-center flex-col">
+                                <div class="loader"></div>
+                                <p class="text-gray-600 dark:text-gray-400 mt-2">Mengirim data...</p>
+                            </div>
+                            <div id="kegiatan-success" class="hidden p-4 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700 rounded-lg">
+                                Laporan berhasil dikirim!
+                            </div>
+                            <div id="kegiatan-error" class="hidden p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700 rounded-lg">
+                                Gagal mengirim laporan. Silakan coba lagi.
+                            </div>
+                            <div id="kegiatan-submitted" class="hidden p-4 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700 rounded-lg">
+                                Anda sudah mengisi laporan untuk hari ini.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PAGE: RIWAYAT PENGISIAN (SISWA) ===== -->
+                <div id="page-riwayat" class="app-page hidden">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i data-lucide="history" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                        Riwayat Pengisian Saya
+                    </h3>
+                    
+                    <!-- Statistik Siswa -->
+                    <div id="riwayat-loading-stats" class="flex justify-center items-center h-24">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="riwayat-stats" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 mr-4">
+                                <i data-lucide="percent" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Persentase Pengisian</p>
+                                <p id="stat-persen-isi" class="text-2xl font-bold">0%</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 mr-4">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Berjamaah</p>
+                                <p id="stat-berjamaah" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 mr-4">
+                                <i data-lucide="user" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Munfarid</p>
+                                <p id="stat-munfarid" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 mr-4">
+                                <i data-lucide="x-circle" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Tidak Sholat</d>
+                                <p id="stat-tidak" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter & Tombol Aksi -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div>
+                                    <label for="riwayat-filter-tanggal" class="text-sm font-medium">Filter Tanggal:</label>
+                                    <input type="date" id="riwayat-filter-tanggal" class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                </div>
+                                <button id="riwayat-reset-filter" class="mt-5 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i>Reset
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="riwayat-refresh-data" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>Refresh
+                                </button>
+                                <button id="riwayat-download-excel" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>Download Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Riwayat -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                        <div id="riwayat-loading-table" class="flex justify-center items-center h-64">
+                            <div class="loader"></div>
+                        </div>
+                        <div id="riwayat-table-container" class="hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-max text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">Tanggal</th>
+                                            <th scope="col" class="px-6 py-3">Subuh</th>
+                                            <th scope="col" class="px-6 py-3">Zuhur</th>
+                                            <th scope="col" class="px-6 py-3">Asar</th>
+                                            <th scope="col" class="px-6 py-3">Magrib</th>
+                                            <th scope="col" class="px-6 py-3">Isya</th>
+                                            <th scope="col" class="px-6 py-3">Tarawih</th>
+                                            <th scope="col" class="px-6 py-3">Surah</th>
+                                            <th scope="col" class="px-6 py-3">Ayat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="riwayat-table-body" class="divide-y dark:divide-gray-700">
+                                        <!-- Data dinamis -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p id="riwayat-no-data" class="text-center p-6 text-gray-500 hidden">Tidak ada data untuk ditampilkan.</p>
+                            
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between p-4 border-t dark:border-gray-700">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm">Baris per halaman:</span>
+                                    <select id="riwayat-rows-per-page" class="p-1 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 text-sm">
+                                        <option value="10">10</option>
+                                        <option value="20" selected>20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span id="riwayat-page-info" class="text-sm">Halaman 1 dari 1</span>
+                                    <button id="riwayat-prev-page" class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50" disabled>
+                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                    </button>
+                                    <button id="riwayat-next-page" class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50" disabled>
+                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ===== PAGE: DASHBOARD (ADMIN) ===== -->
+                <div id="page-dashboard-admin" class="app-page hidden">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                        Dashboard Admin
+                    </h3>
+
+                    <!-- Filter Dashboard Admin -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-wrap items-end gap-4">
+                            <div>
+                                <label for="admin-filter-nama" class="text-sm font-medium">Nama:</label>
+                                <input type="text" id="admin-filter-nama" placeholder="Cari nama..." class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="admin-filter-tanggal" class="text-sm font-medium">Tanggal:</label>
+                                <input type="date" id="admin-filter-tanggal" class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="admin-filter-kelas" class="text-sm font-medium">Kelas:</label>
+                                <select id="admin-filter-kelas" class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                    <option value="">Semua Kelas</option>
+                                    <!-- Opsi kelas akan ditambahkan oleh JS -->
+                                </select>
+                            </div>
+                            <button id="admin-filter-reset" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-loading-stats" class="flex justify-center items-center h-24">
+                        <div class="loader"></div>
+                    </div>
+                    
+                    <!-- Statistik Admin -->
+                    <div id="admin-stats-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 mr-4">
+                                <i data-lucide="users" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Jumlah Siswa</p>
+                                <p id="admin-stat-total-siswa" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-cyan-100 dark:bg-cyan-900 text-cyan-600 dark:text-cyan-300 mr-4">
+                                <i data-lucide="user-check" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Sudah Mengerjakan (Hari Ini)</p>
+                                <p id="admin-stat-mengerjakan-hari-ini" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 mr-4">
+                                <i data-lucide="file-text" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Laporan Masuk</p>
+                                <p id="admin-stat-total-laporan" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 mr-4">
+                                <i data-lucide="users" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Berjamaah (Semua)</p>
+                                <p id="admin-stat-total-berjamaah" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 mr-4">
+                                <i data-lucide="user" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Munfarid (Semua)</p>
+                                <p id="admin-stat-total-munfarid" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center">
+                            <div class="p-4 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 mr-4">
+                                <i data-lucide="x-circle" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total Tidak Sholat (Semua)</p>
+                                <p id="admin-stat-total-tidak" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grafik & Ranking -->
+                    <div id="admin-charts-container" class="hidden grid grid-cols-1 gap-6">
+                        <!-- Grafik Pengerjaan -->
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                            <h4 class="text-lg font-semibold mb-4">Grafik Pengerjaan Siswa (10 Hari Terakhir)</h4>
+                            <div class="relative h-64 md:h-80">
+                                <div id="admin-chart-loader" class="flex justify-center items-center h-full absolute inset-0">
+                                    <div class="loader"></div>
+                                </div>
+                                <canvas id="admin-chart-pengerjaan" class="hidden"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Top 10 Lists -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 10 Siswa Rajin Berjamaah -->
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                                <h4 class="text-lg font-semibold mb-4">Top 10 Siswa Rajin Berjamaah</h4>
+                                <div id="admin-loading-top-siswa" class="flex justify-center items-center h-64">
+                                    <div class="loader"></div>
+                                </div>
+                                <ol id="admin-top-siswa-list" class="hidden list-decimal list-inside space-y-3 text-gray-600 dark:text-gray-300">
+                                    <!-- Data dinamis -->
+                                </ol>
+                                <p id="admin-top-siswa-no-data" class="text-center p-6 text-gray-500 hidden">Belum ada data.</p>
+                            </div>
+                            
+                            <!-- 10 Siswa Rajin Baca Al-Quran -->
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                                <h4 class="text-lg font-semibold mb-4">Top 10 Siswa Rajin Baca Al-Quran</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 -mt-3 mb-3">(Berdasarkan jumlah ayat)</p>
+                                <div id="admin-loading-top-quran" class="flex justify-center items-center h-64">
+                                    <div class="loader"></div>
+                                </div>
+                                <ol id="admin-top-quran-list" class="hidden list-decimal list-inside space-y-3 text-gray-600 dark:text-gray-300">
+                                    <!-- Data dinamis -->
+                                </ol>
+                                <p id="admin-top-quran-no-data" class="text-center p-6 text-gray-500 hidden">Belum ada data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PAGE: REKAPITULASI (ADMIN) ===== -->
+                <div id="page-rekapitulasi" class="app-page hidden">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i data-lucide="file-text" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                        Rekapitulasi Data Kegiatan Siswa
+                    </h3>
+                    
+                    <!-- Filter & Tombol Aksi -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <!-- Filters -->
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div>
+                                    <label for="rekap-filter-nama" class="text-sm font-medium">Nama:</label>
+                                    <input type="text" id="rekap-filter-nama" placeholder="Cari nama..." class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="rekap-filter-tanggal" class="text-sm font-medium">Tanggal:</label>
+                                    <input type="date" id="rekap-filter-tanggal" class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="rekap-filter-kelas" class="text-sm font-medium">Kelas:</label>
+                                    <select id="rekap-filter-kelas" class="mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                        <option value="">Semua Kelas</option>
+                                        <!-- Opsi kelas akan ditambahkan oleh JS -->
+                                    </select>
+                                </div>
+                                <button id="rekap-reset-filter" class="mt-5 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i>Reset
+                                </button>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-2">
+                                <button id="rekap-refresh-data" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>Refresh
+                                </button>
+                                <button id="rekap-download-excel" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>Download Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Rekapitulasi -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                        <div id="rekap-loading-table" class="flex justify-center items-center h-64">
+                            <div class="loader"></div>
+                        </div>
+                        <div id="rekap-table-container" class="hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-max text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">Tanggal</th>
+                                            <th scope="col" class="px-6 py-3">NISN</th>
+                                            <th scope="col" class="px-6 py-3">Nama</th>
+                                            <th scope="col" class="px-6 py-3">Kelas</th>
+                                            <th scope="col" class="px-6 py-3">Subuh</th>
+                                            <th scope="col" class="px-6 py-3">Zuhur</th>
+                                            <th scope="col" class="px-6 py-3">Asar</th>
+                                            <th scope="col" class="px-6 py-3">Magrib</th>
+                                            <th scope="col" class="px-6 py-3">Isya</th>
+                                            <th scope="col" class="px-6 py-3">Tarawih</th>
+                                            <th scope="col" class="px-6 py-3">Surah</th>
+                                            <th scope="col" class="px-6 py-3">Ayat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rekap-table-body" class="divide-y dark:divide-gray-700">
+                                        <!-- Data dinamis -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p id="rekap-no-data" class="text-center p-6 text-gray-500 hidden">Tidak ada data untuk ditampilkan.</p>
+                            
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between p-4 border-t dark:border-gray-700">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm">Baris per halaman:</span>
+                                    <select id="rekap-rows-per-page" class="p-1 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 text-sm">
+                                        <option value="10">10</option>
+                                        <option value="20" selected>20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="500">500</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span id="rekap-page-info" class="text-sm">Halaman 1 dari 1</span>
+                                    <button id="rekap-prev-page" class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50" disabled>
+                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                    </button>
+                                    <button id="rekap-next-page" class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50" disabled>
+                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PAGE: WAKTU SHOLAT (BERSAMA) ===== -->
+                <div id="page-waktu-sholat" class="app-page hidden">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i data-lucide="clock" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                        Waktu Sholat
+                    </h3>
+
+                    <!-- Kontrol Lokasi -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-wrap items-end gap-4">
+                            <div class="flex-1 min-w-[200px]">
+                                <label for="sholat-lokasi-select" class="text-sm font-medium">Pilih Kota (Indonesia):</label>
+                                <select id="sholat-lokasi-select" class="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                    <option value="Cisewu">Cisewu</option>
+                                    <option value="Garut">Garut</option>
+                                    <option value="Jakarta">Jakarta</option>
+                                    <option value="Surabaya">Surabaya</option>
+                                    <option value="Bandung">Bandung</option>
+                                    <option value="Medan">Medan</option>
+                                    <option value="Semarang">Semarang</option>
+                                    <option value="Makassar">Makassar</option>
+                                    <option value="Palembang">Palembang</option>
+                                    <option value="Bekasi">Bekasi</option>
+                                    <option value="Tangerang">Tangerang</option>
+                                    <option value="Depok">Depok</option>
+                                    <option value="Padang">Padang</option>
+                                    <option value="Denpasar">Denpasar</option>
+                                    <option value="Banjarmasin">Banjarmasin</option>
+                                    <option value="Yogyakarta">Yogyakarta</option>
+                                    <option value="Malang">Malang</option>
+                                    <option value="Balikpapan">Balikpapan</option>
+                                    <option value="Pekanbaru">Pekanbaru</option>
+                                    <option value="Manado">Manado</option>
+                                    <option value="Bogor">Bogor</option>
+                                    <option value="Samarinda">Samarinda</option>
+                                </select>
+                            </div>
+                            <span class="text-sm mx-2">atau</span>
+                            <button id="sholat-my-location-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>Gunakan Lokasi Saya
+                            </button>
+                        </div>
+                        <p id="sholat-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                    </div>
+                    
+                    <div id="sholat-loading" class="flex justify-center items-center h-64 hidden">
+                        <div class="loader"></div>
+                    </div>
+
+                    <!-- Hasil Waktu Sholat -->
+                    <div id="sholat-results-container" class="hidden">
+                        <div class="text-center mb-6">
+                            <h4 class="text-2xl font-bold" id="sholat-city-name">Kota</h4>
+                            <p class="text-lg text-gray-600 dark:text-gray-400" id="sholat-date-info">Tanggal</p>
+                        </div>
+
+                        <!-- Hitung Mundur -->
+                        <div class="mb-6 max-w-lg mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+                            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Hitung Mundur Menuju Sholat Berikutnya:</p>
+                            <h3 class="text-4xl font-bold text-emerald-600 dark:text-emerald-400 my-2" id="sholat-next-name">---</h3>
+                            <p class="text-3xl font-mono" id="sholat-countdown">00:00:00</p>
+                        </div>
+                        
+                        <!-- Kotak Waktu Sholat -->
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <div class="sholat-time-card bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md text-center border-b-4 border-gray-300 dark:border-gray-600">
+                                <i data-lucide="moon-star" class="w-10 h-10 mx-auto text-gray-500 dark:text-gray-400 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Imsyak</p>
+                                <p class="text-2xl font-bold" id="time-Imsak">--:--</p>
+                            </div>
+                            <div class="sholat-time-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center border-b-4 border-blue-500">
+                                <i data-lucide="sunrise" class="w-10 h-10 mx-auto text-blue-500 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Subuh</p>
+                                <p class="text-2xl font-bold" id="time-Fajr">--:--</p>
+                            </div>
+                            <div class="sholat-time-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center border-b-4 border-yellow-500">
+                                <i data-lucide="sun" class="w-10 h-10 mx-auto text-yellow-500 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Zuhur</p>
+                                <p class="text-2xl font-bold" id="time-Dhuhr">--:--</p>
+                            </div>
+                            <div class="sholat-time-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center border-b-4 border-orange-500">
+                                <i data-lucide="cloud-sun" class="w-10 h-10 mx-auto text-orange-500 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Asar</p>
+                                <p class="text-2xl font-bold" id="time-Asr">--:--</p>
+                            </div>
+                            <div class="sholat-time-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center border-b-4 border-red-500">
+                                <i data-lucide="sunset" class="w-10 h-10 mx-auto text-red-500 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Magrib</p>
+                                <p class="text-2xl font-bold" id="time-Maghrib">--:--</p>
+                            </div>
+                            <div class="sholat-time-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center border-b-4 border-indigo-500">
+                                <i data-lucide="moon" class="w-10 h-10 mx-auto text-indigo-500 mb-2"></i>
+                                <p class="font-semibold text-gray-700 dark:text-gray-300">Isya</p>
+                                <p class="text-2xl font-bold" id="time-Isha">--:--</p>
+                            </div>
+                        </div>
+
+                        <!-- Penanda Loading Cuaca (Baru) -->
+                        <div id="weather-loading" class="flex justify-center items-center h-32 hidden mt-8">
+                            <div class="loader"></div>
+                        </div>
+
+                        <!-- Kontainer Info Cuaca (Baru) -->
+                        <div id="weather-results-container" class="hidden mt-8">
+                            <h4 class="text-xl font-semibold mb-4 flex items-center">
+                                <i data-lucide="cloud-sun" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                                Info Cuaca
+                            </h4>
+                            
+                            <div id="weather-error" class="text-red-500 text-sm mb-4 hidden"></div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Kotak Cuaca Hari Ini -->
+                                <div id="weather-today" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center border-b-4 border-blue-500">
+                                    <h5 class="text-lg font-bold mb-2">Hari Ini</h5>
+                                    <div id="weather-today-icon" class="w-16 h-16 mx-auto my-3">
+                                        <!-- Ikon cuaca dinamis (SVG) -->
+                                    </div>
+                                    <p class="text-3xl font-bold" id="weather-today-temp">-- °C</p>
+                                    <p class="text-gray-600 dark:text-gray-400" id="weather-today-desc">--</p>
+                                </div>
+                                
+                                <!-- Kotak Cuaca Besok -->
+                                <div id="weather-tomorrow" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center border-b-4 border-gray-400">
+                                    <h5 class="text-lg font-bold mb-2">Besok</h5>
+                                    <div id="weather-tomorrow-icon" class="w-16 h-16 mx-auto my-3">
+                                        <!-- Ikon cuaca dinamis (SVG) -->
+                                    </div>
+                                    <p class="text-3xl font-bold" id="weather-tomorrow-temp">-- °C</p>
+                                    <!-- PERUBAHAN: Mengganti 'Angin' menjadi 'Min/Max Temp' -->
+                                    <p class="text-gray-600 dark:text-gray-400" id="weather-tomorrow-range">Min: -- / Max: --</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PAGE: BACA AL-QURAN (BERSAMA) ===== -->
+                <div id="page-baca-quran" class="app-page hidden">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i data-lucide="book-open" class="w-6 h-6 mr-3 text-emerald-600 dark:text-emerald-400"></i>
+                        Al-Quran Digital
+                    </h3>
+
+                    <!-- Kontrol Quran -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-wrap items-end gap-4">
+                            <div class="flex-1 min-w-[200px]">
+                                <label for="quran-surah-select" class="text-sm font-medium">Pilih Surah:</label>
+                                <select id="quran-surah-select" class="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                                    <option value="">Memuat daftar surah...</option>
+                                </select>
+                            </div>
+                            <div class="flex-1 min-w-[150px]">
+                                <label for="quran-ayat-search" class="text-sm font-medium">Cari Ayat:</label>
+                                <input type="number" id="quran-ayat-search" placeholder="Nomor ayat" class="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700">
+                            </div>
+                            <button id="quran-go-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <i data-lucide="book-marked" class="w-4 h-4 mr-2"></i>Baca
+                            </button>
+                        </div>
+                        <p id="quran-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                    </div>
+
+                    <div id="quran-loading" class="flex justify-center items-center h-64 hidden">
+                        <div class="loader"></div>
+                    </div>
+
+                    <!-- Konten Quran -->
+                    <div id="quran-content-container" class="hidden bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <div class="text-center mb-6 border-b dark:border-gray-700 pb-4">
+                            <h2 class="text-3xl font-bold" id="quran-surah-name"></h2>
+                            <p class="text-lg text-gray-500 dark:text-gray-400" id="quran-surah-info"></p>
+                        </div>
+                        
+                        <!-- Bismillah -->
+                        <div id="quran-bismillah" class="text-center text-3xl font-mono arabic-text mb-6 hidden">
+                            بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                        </div>
+                        
+                        <div id="quran-ayat-list" class="space-y-8">
+                            <!-- Ayat dinamis -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="text-center p-6 mt-10 border-t dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    © 2025 SMP PGRI Cisewu. All rights reserved.
+                </p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // ===== PENGATURAN AWAL =====
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhNq71SNcn2ROM6wj6VzTFOk2h2pUfHiGWaxJ8dUwxhquAgOISTONJOw9cglQ8T3RUaw/exec';
+            
+            // Data Siswa (Sesuai yang diberikan)
+            const STUDENT_DATA = [
+                { NAMA: "ABDILLAH", NISN: "0131455920", KELAS: "7B" },
+                { NAMA: "Abdul Aziz Rizkian", NISN: "0117673582", KELAS: "7A" },
+                { NAMA: "ABDUL KARIM", NISN: "0129827359", KELAS: "7A" },
+                { NAMA: "Adi Sendri Saputra", NISN: "0118302137", KELAS: "8B" },
+                { NAMA: "ADINDA KAHLA ANISA", NISN: "0121627273", KELAS: "8B" },
+                { NAMA: "Aditya Herbiansyah", NISN: "0111504896", KELAS: "8A" },
+                { NAMA: "Aditya Lasmana", NISN: "0119137510", KELAS: "8B" },
+                { NAMA: "AGIL GIANTARA", NISN: "0119775932", KELAS: "9C" },
+                { NAMA: "Ahmad Rendy Ramdani", NISN: "0123523643", KELAS: "7A" },
+                { NAMA: "Akbar Ardiansyah", NISN: "3132843213", KELAS: "7B" },
+                { NAMA: "AKBAR FAUZAN", NISN: "0119791551", KELAS: "8B" },
+                { NAMA: "AKMAL NURDIANSYAH", NISN: "0108684697", KELAS: "9B" },
+                { NAMA: "Alecia Agusni Aulia Putri", NISN: "3139052676", KELAS: "7B" },
+                { NAMA: "Alfah Reza Surya Pratama", NISN: "3127341697", KELAS: "7C" },
+                { NAMA: "ALIFA MUTIARA", NISN: "3139492704", KELAS: "7A" },
+                { NAMA: "ALISSA QUTROTUN NADA", NISN: "0104034877", KELAS: "9C" },
+                { NAMA: "Alliya Romadona", NISN: "0125830001", KELAS: "8B" },
+                { NAMA: "ALTRY PERTIWI", NISN: "0112354530", KELAS: "9A" },
+                { NAMA: "ALVIN M ALJABAR", NISN: "0114310972", KELAS: "8A" },
+                { NAMA: "AMELIA", NISN: "0101108787", KELAS: "9B" },
+                { NAMA: "AMELIA", NISN: "0117721334", KELAS: "9C" },
+                { NAMA: "Amelia Masripatul H", NISN: "0124317634", KELAS: "7B" },
+                { NAMA: "Andini Saputri", NISN: "0114198488", KELAS: "9C" },
+                { NAMA: "ANGELINA JOLIE", NISN: "0115617729", KELAS: "8A" },
+                { NAMA: "ANGGA SAPUTRA", NISN: "0123569527", KELAS: "7B" },
+                { NAMA: "Anggia Novita Maya Sari", NISN: "3126812797", KELAS: "7C" },
+                { NAMA: "ANGGUN SRI NABILA", NISN: "3122428071", KELAS: "7A" },
+                { NAMA: "ANJANI SRI RAHAYU", NISN: "0122458285", KELAS: "8A" },
+                { NAMA: "Anwar", NISN: "0125526520", KELAS: "7B" },
+                { NAMA: "Arbil Arsadil Alam", NISN: "0114697120", KELAS: "8B" },
+                { NAMA: "ARBY YUKIO NUGRAHA", NISN: "0104630685", KELAS: "9B" },
+                { NAMA: "ARIA DANU FADZILAH", NISN: "0117362876", KELAS: "9A" },
+                { NAMA: "Arpan Muhamad Fiqri", NISN: "0119002624", KELAS: "8A" },
+                { NAMA: "Ariska Sri Gristiani", NISN: "0113759437", KELAS: "9A" },
+                { NAMA: "ASIFA ANGGRAENI", NISN: "0128656712", KELAS: "8B" },
+                { NAMA: "ATEP KURNIAWAN", NISN: "0114479356", KELAS: "9C" },
+                { NAMA: "AUDILA ARSIKA", NISN: "0105646793", KELAS: "9B" },
+                { NAMA: "AYU LESTARI", NISN: "3103928370", KELAS: "9A" },
+                { NAMA: "AZRIL MUHAMMAD AKHIR", NISN: "0114976164", KELAS: "8A" },
+                { NAMA: "BAGUS SAJIDIN", NISN: "0127122976", KELAS: "7A" },
+                { NAMA: "Bastian Alfaro", NISN: "0125723688", KELAS: "8A" },
+                { NAMA: "Bayu Hanggara Putra", NISN: "0127199416", KELAS: "8B" },
+                { NAMA: "Bayu Samudra", NISN: "0127534145", KELAS: "7A" },
+                { NAMA: "BRYAN ADAM SIREGAR", NISN: "0107571179", KELAS: "9C" },
+                { NAMA: "CAHAYA SUMIRAT PUTRI", NISN: "0118290392", KELAS: "9A" },
+                { NAMA: "Chelsy Adelya Munic", NISN: "3128285511", KELAS: "7B" },
+                { NAMA: "CYNTIA MAHARANI SAPITRI", NISN: "0129880860", KELAS: "7C" },
+                { NAMA: "Danda Permana Putra", NISN: "0125428189", KELAS: "8B" },
+                { NAMA: "DANISA PUTRI SALWA", NISN: "0118541215", KELAS: "9C" },
+                { NAMA: "Danu Bilal Muhamad", NISN: "3122585173", KELAS: "7C" },
+                { NAMA: "DEA ANASTASYA", NISN: "3126397020", KELAS: "7A" },
+                { NAMA: "DEA HANDAYANI", NISN: "3135007639", KELAS: "7A" },
+                { NAMA: "DEA NURULL ANISA RAHMAWATI", NISN: "0111313823", KELAS: "9B" },
+                { NAMA: "DEA PAJAR RAHMAT RAMADAN", NISN: "0114452565", KELAS: "8A" },
+                { NAMA: "DEDE MARWANTO", NISN: "0105968968", KELAS: "9C" },
+                { NAMA: "DENI SOLEH", NISN: "0108708504", KELAS: "9B" },
+                { NAMA: "DEPINA DEWANTI PERMATA", NISN: "0112439329", KELAS: "9A" },
+                { NAMA: "DESTA AULIYA ROMADON", NISN: "0114171290", KELAS: "9A" },
+                { NAMA: "DEVA DIVANI", NISN: "0118255067", KELAS: "9C" },
+                { NAMA: "DEVI TRIYANI", NISN: "0111014977", KELAS: "9A" },
+                { NAMA: "Dika Ibrahim", NISN: "3131977667", KELAS: "7B" },
+                { NAMA: "DILA ANATASYA RAMADHANI", NISN: "0123777281", KELAS: "8B" },
+                { NAMA: "DIMAS AFFAREL", NISN: "0118891533", KELAS: "9B" },
+                { NAMA: "DINA MURNITA PUTRI", NISN: "3115618231", KELAS: "7B" },
+                { NAMA: "Dindawati", NISN: "0118627015", KELAS: "8B" },
+                { NAMA: "Dodik Heriyanto", NISN: "3117184181", KELAS: "7A" },
+                { NAMA: "DWI PUTRA", NISN: "3127201211", KELAS: "7A" },
+                { NAMA: "Efandi Aditya Purnama", NISN: "3129740172", KELAS: "7C" },
+                { NAMA: "Enzi Almarwah", NISN: "0124347159", KELAS: "8B" },
+                { NAMA: "EPA HIDAYAT", NISN: "0118791307", KELAS: "8A" },
+                { NAMA: "ERINNA MARVA LUVENA", NISN: "0105474769", KELAS: "9B" },
+                { NAMA: "ERSA SRI MEIDA", NISN: "0115420455", KELAS: "9B" },
+                { NAMA: "FADHIL RIZAL PRATAMA", NISN: "0101155579", KELAS: "9C" },
+                { NAMA: "FADLI", NISN: "0101641209", KELAS: "9C" },
+                { NAMA: "FAHMI ALWI", NISN: "0108420975", KELAS: "9A" },
+                { NAMA: "FAHREZY WILDAN RAMADHAN", NISN: "0119495318", KELAS: "9A" },
+                { NAMA: "FAHRY BIMA ADITIA", NISN: "3128216164", KELAS: "7A" },
+                { NAMA: "FAKHRI FAISHAL SEHABUDIN", NISN: "3135475734", KELAS: "7B" },
+                { NAMA: "FANESA ANASTASYA", NISN: "0116617814", KELAS: "9B" },
+                { NAMA: "FAREL HAMDAN FAUZI", NISN: "3131994221", KELAS: "7C" },
+                { NAMA: "FAUZI ALFAHRI", NISN: "3135518321", KELAS: "7C" },
+                { NAMA: "Febritira Anggraeni", NISN: "3124732971", KELAS: "7A" },
+                { NAMA: "Filsha Anindya", NISN: "0126370707", KELAS: "7B" },
+                { NAMA: "FITRIANI", NISN: "0118635468", KELAS: "9B" },
+                { NAMA: "GAFI ALFIANSYAH", NISN: "0129153236", KELAS: "7C" },
+                { NAMA: "GALIH SATRIA MULKI NURHEMAN", NISN: "3118940461", KELAS: "8B" },
+                { NAMA: "Ghaniya Batari Maheswari", NISN: "0112040747", KELAS: "9A" },
+                { NAMA: "Habib Ali", NISN: "3122801085", KELAS: "7A" },
+                { NAMA: "Hendi Hendriyana", NISN: "3125292505", KELAS: "7A" },
+                { NAMA: "Hengky Vrilian Pratama", NISN: "3129894129", KELAS: "8A" },
+                { NAMA: "HIBBAN AS'ARY", NISN: "0129393043", KELAS: "8A" },
+                { NAMA: "HILMAN RENDIAWAN", NISN: "0105912962", KELAS: "9C" },
+                { NAMA: "HUSNA YULISTIAWATI", NISN: "0117018806", KELAS: "9B" },
+                { NAMA: "Ina Agustian", NISN: "0125341995", KELAS: "8B" },
+                { NAMA: "INDRI RESPITA", NISN: "0116903636", KELAS: "9C" },
+                { NAMA: "IQBAL SUPRIATNA", NISN: "0111963259", KELAS: "9B" },
+                { NAMA: "IQSAN AZI MOCH SIDIK", NISN: "0106749116", KELAS: "9B" },
+                { NAMA: "Ira Aryanti", NISN: "0131145060", KELAS: "7B" },
+                { NAMA: "IRA IRMAYANTI", NISN: "0111556030", KELAS: "9B" },
+                { NAMA: "IRMA RAHMAYANTI", NISN: "0113046987", KELAS: "7C" },
+                { NAMA: "Irpan Gunawan", NISN: "0119000280", KELAS: "8A" },
+                { NAMA: "ISNA NURHASANAH", NISN: "0114731325", KELAS: "9A" },
+                { NAMA: "JUITA MULIA ARROPAH", NISN: "0119630030", KELAS: "9A" },
+                { NAMA: "KAMAL PADILAH", NISN: "0111932904", KELAS: "9C" },
+                { NAMA: "KEYLA ANGGUNIA RAHMAWATI PRAMUDITA", NISN: "3129652202", KELAS: "7C" },
+                { NAMA: "Keynar Dewi Utari", NISN: "3120321371", KELAS: "8A" },
+                { NAMA: "Khawira Taufik", NISN: "0122862724", KELAS: "7B" },
+                { NAMA: "KIRANI SAKILA AYU", NISN: "3129328884", KELAS: "7B" },
+                { NAMA: "KORI SANDIO RIPA OKTAPIANI", NISN: "0106152795", KELAS: "9C" },
+                { NAMA: "Lastri Arda Resta", NISN: "0129657639", KELAS: "7A" },
+                { NAMA: "Levina Raya Agustin", NISN: "0116013535", KELAS: "8A" },
+                { NAMA: "M Rifqi L", NISN: "0114624155", KELAS: "8B" },
+                { NAMA: "MARIAM", NISN: "3127557020", KELAS: "7B" },
+                { NAMA: "MARLINA", NISN: "0105631692", KELAS: "9A" },
+                { NAMA: "MELANI RAHAYU PUTRI", NISN: "0117666665", KELAS: "9A" },
+                { NAMA: "MELISA ADINDA PUTRI", NISN: "0118249790", KELAS: "9B" },
+                { NAMA: "Mochamad Ilyasa Darisman", NISN: "0119977338", KELAS: "8A" },
+                { NAMA: "Mochamad Syahril Alamsyah", NISN: "3123146238", KELAS: "7A" },
+                { NAMA: "MOHAMAD AZMI RISYAD", NISN: "3123992436", KELAS: "7A" },
+                { NAMA: "Muhamad Abdul Latif", NISN: "3129869405", KELAS: "7C" },
+                { NAMA: "MUHAMAD ALFARO", NISN: "3127203203", KELAS: "7C" },
+                { NAMA: "Muhamad Danar Pratama", NISN: "3125595814", KELAS: "7B" },
+                { NAMA: "Muhamad Edvan Al Jabbar", NISN: "0113438163", KELAS: "7C" },
+                { NAMA: "Muhamad Faidzun", NISN: "0106456519", KELAS: "8B" },
+                { NAMA: "Muhamad Hilapatul Ihwan", NISN: "0119481200", KELAS: "7B" },
+                { NAMA: "MUHAMAD KEVIN", NISN: "0121849291", KELAS: "8B" },
+                { NAMA: "Muhamad Paisal", NISN: "3128183715", KELAS: "7C" },
+                { NAMA: "MUHAMAD RAGIL ALFABIAN", NISN: "0126997791", KELAS: "7C" },
+                { NAMA: "Muhamad Ridwan Saputra", NISN: "0123107437", KELAS: "7C" },
+                { NAMA: "MUHAMAD ZHIDAN", NISN: "0124938631", KELAS: "7B" },
+                { NAMA: "Muhammad Rifan Al Fazriee", NISN: "0117178173", KELAS: "8B" },
+                { NAMA: "Muliawati", NISN: "3115608528", KELAS: "9C" },
+                { NAMA: "Mustika Alfitriani", NISN: "0115333883", KELAS: "8B" },
+                { NAMA: "NABILA ALPIANTI", NISN: "0105865329", KELAS: "9B" },
+                { NAMA: "NAIRA NURWENDAWATI", NISN: "3135661053", KELAS: "7A" },
+                { NAMA: "Natsya Amanda Gunawan", NISN: "0123741249", KELAS: "7B" },
+                { NAMA: "NAYLA PUTRI", NISN: "3120700152", KELAS: "9C" },
+                { NAMA: "NAYLA RAHMATAL AZZAHRA", NISN: "0114917097", KELAS: "9C" },
+                { NAMA: "Nayla Robiatul Adawiah", NISN: "0134928450", KELAS: "7A" },
+                { NAMA: "NENDEN PUTRI YUGIYANI", NISN: "0105613407", KELAS: "9C" },
+                { NAMA: "Neng Selpi", NISN: "3125818755", KELAS: "7C" },
+                { NAMA: "NENG SITI PATIMAH", NISN: "3138462853", KELAS: "7B" },
+                { NAMA: "NENG SRI MARDIANTI", NISN: "0127663608", KELAS: "9A" },
+                { NAMA: "NENG SUMINAR", NISN: "0124411189", KELAS: "8B" },
+                { NAMA: "NHATANIA SALSABILA PUTRI SHADIVA", NISN: "0116579565", KELAS: "8B" },
+                { NAMA: "NIA LESTARI", NISN: "3125243258", KELAS: "7C" },
+                { NAMA: "NOPITA", NISN: "0113863808", KELAS: "7C" },
+                { NAMA: "NORMA INSANI PUTRI", NISN: "0108690439", KELAS: "8A" },
+                { NAMA: "Novita Sari Az Zahra", NISN: "0111152370", KELAS: "8B" },
+                { NAMA: "NUR SAMSIAH", NISN: "0118152758", KELAS: "9A" },
+                { NAMA: "NURHIDAYAH", NISN: "0112632376", KELAS: "9B" },
+                { NAMA: "NURLAILA", NISN: "3136356574", KELAS: "7A" },
+                { NAMA: "NURLINGGA UMBARA", NISN: "0103857825", KELAS: "9B" },
+                { NAMA: "NURUL HUSNA", NISN: "0113258424", KELAS: "7C" },
+                { NAMA: "Nurul Rismayanti", NISN: "0125329143", KELAS: "8A" },
+                { NAMA: "PADIL MUHAMAD AKBAR", NISN: "3137776473", KELAS: "7C" },
+                { NAMA: "Pariz Alpa Rizki Ramadansyah", NISN: "0126315357", KELAS: "7A" },
+                { NAMA: "PERDI OKTARA", NISN: "3122768761", KELAS: "7A" },
+                { NAMA: "PIKI", NISN: "3125830435", KELAS: "7B" },
+                { NAMA: "Pitriyanti", NISN: "0104455708", KELAS: "8B" },
+                { NAMA: "Puji Maulana", NISN: "0126517504", KELAS: "7B" },
+                { NAMA: "Putri Amanah", NISN: "0125436484", KELAS: "7A" },
+                { NAMA: "PUTRI ANJANI", NISN: "0105390280", KELAS: "9A" },
+                { NAMA: "PUTRI AULIA NURROHMAH", NISN: "0105383955", KELAS: "9A" },
+                { NAMA: "RAFFA RIZKY PRATAMA", NISN: "0111176977", KELAS: "9A" },
+                { NAMA: "RAFKA ABIGEL ALFARO", NISN: "0115289280", KELAS: "9A" },
+                { NAMA: "RAHMA CHAIYA APRILIANE", NISN: "0116375959", KELAS: "9B" },
+                { NAMA: "RAIHAN AZIZ ARISTA", NISN: "0114440907", KELAS: "8A" },
+                { NAMA: "RAIHAN PRAYOGA NUGRAHA", NISN: "0117176281", KELAS: "8A" },
+                { NAMA: "RAISA NURSABILLA", NISN: "0116359381", KELAS: "9A" },
+                { NAMA: "RAISA PRATIWI", NISN: "3125801190", KELAS: "7B" },
+                { NAMA: "Raisya Putri Pratama", NISN: "0128711790", KELAS: "8A" },
+                { NAMA: "Raja Alviano Saputra", NISN: "0105865441", KELAS: "9C" },
+                { NAMA: "RANDI", NISN: "0109057373", KELAS: "7B" },
+                { NAMA: "RANGGA", NISN: "0118748800", KELAS: "9A" },
+                { NAMA: "Raya Alamsyah", NISN: "0104197900", KELAS: "8A" },
+                { NAMA: "Rayi Prayitno", NISN: "0101522584", KELAS: "8A" },
+                { NAMA: "Razfa Muhamad Al Putra", NISN: "0116903933", KELAS: "8B" },
+                { NAMA: "REFA", NISN: "0103389733", KELAS: "9B" },
+                { NAMA: "REFLYAN PURNAMA AJI", NISN: "0118435622", KELAS: "9B" },
+                { NAMA: "Rehan Gio Nino", NISN: "0132028347", KELAS: "7B" },
+                { NAMA: "Reihan Devi Andriansyah", NISN: "0139602203", KELAS: "7C" },
+                { NAMA: "Renaldi Ferdinan", NISN: "0114986278", KELAS: "9B" },
+                { NAMA: "Renata Ledistia", NISN: "3134040954", KELAS: "7B" },
+                { NAMA: "RENDI", NISN: "0118755578", KELAS: "9A" },
+                { NAMA: "Reno Suardi", NISN: "0127300742", KELAS: "8B" },
+                { NAMA: "RESTI", NISN: "0126431156", KELAS: "8A" },
+                { NAMA: "Resti Amelliyanti", NISN: "0115917661", KELAS: "8B" },
+                { NAMA: "REZKIAN AAF NOVEMBERIANTO", NISN: "0126602557", KELAS: "7A" },
+                { NAMA: "RIAN FIRMANSYAH", NISN: "0101175853", KELAS: "9C" },
+                { NAMA: "Rian Subastian", NISN: "0127388320", KELAS: "7A" },
+                { NAMA: "Ridwan", NISN: "0128771317", KELAS: "7B" },
+                { NAMA: "RIJAL FAUZAN", NISN: "0108383000", KELAS: "9C" },
+                { NAMA: "RINI RAHMAWATI", NISN: "0112104688", KELAS: "9C" },
+                { NAMA: "RIPAN PADILA", NISN: "0104256899", KELAS: "9B" },
+                { NAMA: "RISMA", NISN: "3121831021", KELAS: "7A" },
+                { NAMA: "RISMAWATI", NISN: "0109107981", KELAS: "7A" },
+                { NAMA: "RIVA MEIJA PUTRI", NISN: "0113250541", KELAS: "9C" },
+                { NAMA: "Rizki Azkia Putra", NISN: "3129552062", KELAS: "7C" },
+                { NAMA: "ROBI JULIANA", NISN: "0118174024", KELAS: "7C" },
+                { NAMA: "ROBILA HERDIANTO", NISN: "0109631428", KELAS: "8B" },
+                { NAMA: "SABRINA SEPTIANI PUTRI", NISN: "0106805219", KELAS: "8A" },
+                { NAMA: "Salsa Bela", NISN: "0128999764", KELAS: "8B" },
+                { NAMA: "SALVA AULIA AZAHRA", NISN: "3127006954", KELAS: "7A" },
+                { NAMA: "Salwa Nur Indri", NISN: "0118197315", KELAS: "8A" },
+                { NAMA: "SANDI ARDIANSAH", NISN: "3107939491", KELAS: "9B" },
+                { NAMA: "SANDI KAISAR OKTOVIO", NISN: "0108107547", KELAS: "9A" },
+                { NAMA: "SARIP HIDAYAT", NISN: "0113702985", KELAS: "9A" },
+                { NAMA: "Sela Delia Sinta", NISN: "0131334434", KELAS: "7B" },
+                { NAMA: "SELLA AULIA", NISN: "0129326293", KELAS: "7B" },
+                { NAMA: "Selpi Novi Yanti", NISN: "0114289980", KELAS: "8B" },
+                { NAMA: "SELPI PATMAWATI", NISN: "0103509542", KELAS: "9B" },
+                { NAMA: "SELVIA RINDIYANI MUSVITA", NISN: "3127724097", KELAS: "7C" },
+                { NAMA: "SEMI WINARYA", NISN: "3135243192", KELAS: "7B" },
+                { NAMA: "SENDI PRATAMA", NISN: "0102155657", KELAS: "9A" },
+                { NAMA: "SENIA JUNIA HARTINI", NISN: "0137829161", KELAS: "7C" },
+                { NAMA: "SHEGI AULIA FAJAR", NISN: "0112456987", KELAS: "8A" },
+                { NAMA: "Sigit Muhamad Hidayattuloh", NISN: "3122958237", KELAS: "7C" },
+                { NAMA: "SILLQ RIZALUL AZIZ", NISN: "0122139256", KELAS: "7C" },
+                { NAMA: "SILVA PAUZIAN", NISN: "0119726826", KELAS: "9B" },
+                { NAMA: "Sindi Aulia", NISN: "3126286490", KELAS: "7C" },
+                { NAMA: "SINTA SARI", NISN: "0123942539", KELAS: "8B" },
+                { NAMA: "Sintia Agustin", NISN: "3134661100", KELAS: "7B" },
+                { NAMA: "SIPA NURUL PATWA", NISN: "3115550592", KELAS: "9C" },
+                { NAMA: "Siti Azahra", NISN: "3133498181", KELAS: "7A" },
+                { NAMA: "Siti Zahra", NISN: "0122679009", KELAS: "8A" },
+                { NAMA: "SRI DEWI WAHYUNINGRAT", NISN: "3131368789", KELAS: "7C" },
+                { NAMA: "SRI MUTIARA SALSABILA", NISN: "0127349928", KELAS: "8B" },
+                { NAMA: "SRI NABILA", NISN: "0107522387", KELAS: "9C" },
+                { NAMA: "STEPANI AGUSTINA", NISN: "0122687441", KELAS: "7A" },
+                { NAMA: "Suci Sri Wahyuni", NISN: "0111029027", KELAS: "8A" },
+                { NAMA: "Sultan Thusel Dwijaya", NISN: "0106880218", KELAS: "9A" },
+                { NAMA: "Syakila Siti Habsyah", NISN: "0128799473", KELAS: "8B" },
+                { NAMA: "Tammy Dwi Kirani", NISN: "3124147396", KELAS: "7C" },
+                { NAMA: "TANIA SEPTIANI", NISN: "0102185171", KELAS: "9A" },
+                { NAMA: "TASYA HOEUN NISA", NISN: "0112842740", KELAS: "7B" },
+                { NAMA: "TASYA TRIHAFSARI", NISN: "0136060235", KELAS: "7C" },
+                { NAMA: "TIA NITA RAHMAWATI", NISN: "0097732924", KELAS: "8B" },
+                { NAMA: "TIAN KOBAIN", NISN: "0116684367", KELAS: "8B" },
+                { NAMA: "Tiara Nurfadilah", NISN: "0103319719", KELAS: "9B" },
+                { NAMA: "VANESHA TRI RAMADANI", NISN: "0117961727", KELAS: "8A" },
+                { NAMA: "Vielna Salsabila", NISN: "0117683721", KELAS: "8A" },
+                { NAMA: "WIDIA ASTUTI", NISN: "0105999493", KELAS: "9B" },
+                { NAMA: "WILLI ASPIANI", NISN: "3121323061", KELAS: "7A" },
+                { NAMA: "Wisya Diva Anjani", NISN: "3127205263", KELAS: "7C" },
+                { NAMA: "YAZA NURAENI", NISN: "0117579755", KELAS: "8A" },
+                { NAMA: "YULAN YULIANI", NISN: "3122960711", KELAS: "7A" },
+                { NAMA: "YUYUM SURISTINA", NISN: "0112022041", KELAS: "9B" },
+                { NAMA: "ZAHIRA", NISN: "3124615436", KELAS: "7B" },
+                { NAMA: "ZAHRA OKTAVIA ANDINI", NISN: "0118304049", KELAS: "9A" },
+                { NAMA: "ZAKIA KURNIA", NISN: "0104130711", KELAS: "9C" },
+                { NAMA: "ZAKIATUL HASANAH", NISN: "0109702818", KELAS: "9C" }
+            ].map(s => ({...s, KELAS: s.KELAS.trim()})); // Membersihkan spasi pada KELAS
+
+            // Variabel Global
+            let currentUser = null;
+            let allSpreadsheetData = [];
+            let currentSiswaData = [];
+            let adminChart = null;
+            let sholatCountdownInterval = null;
+            
+            // Variabel Pagination (Siswa)
+            let riwayatCurrentPage = 1;
+            let riwayatRowsPerPage = 20;
+            
+            // Variabel Pagination (Admin)
+            let rekapCurrentPage = 1;
+            let rekapRowsPerPage = 20;
+
+            // DOM Elements
+            const loginPage = document.getElementById('login-page');
+            const appPage = document.getElementById('app-page');
+            const loginRoleBtns = document.querySelectorAll('.login-role-btn');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const siswaLoginForm = document.getElementById('siswa-login-form');
+            const loginFormAdmin = document.getElementById('login-form-admin');
+            const loginFormSiswa = document.getElementById('login-form-siswa');
+            const loginError = document.getElementById('login-error');
+            
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const burgerBtn = document.getElementById('burger-btn');
+            const mainContent = document.getElementById('main-content');
+            
+            const userNameEl = document.getElementById('user-name');
+            const realtimeDateEl = document.getElementById('realtime-date');
+            const realtimeTimeEl = document.getElementById('realtime-time');
+            
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            const menuAdmin = document.getElementById('menu-admin');
+            const menuSiswa = document.getElementById('menu-siswa');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const appPages = document.querySelectorAll('.app-page');
+
+            // Halaman: Kegiatan Siswa
+            const kegiatanForm = document.getElementById('kegiatan-form');
+            const kegiatanNama = document.getElementById('kegiatan-nama');
+            const kegiatanTanggal = document.getElementById('kegiatan-tanggal');
+            const kegiatanNisn = document.getElementById('kegiatan-nisn');
+            const kegiatanKelas = document.getElementById('kegiatan-kelas');
+            const shalatSelects = document.querySelectorAll('.shalat-select');
+            const kegiatanStatus = document.getElementById('kegiatan-status');
+            const kegiatanLoading = document.getElementById('kegiatan-loading');
+            const kegiatanSuccess = document.getElementById('kegiatan-success');
+            const kegiatanError = document.getElementById('kegiatan-error');
+            const kegiatanSubmitted = document.getElementById('kegiatan-submitted');
+            const kegiatanFormContainer = document.getElementById('kegiatan-form-container');
+            
+            // Halaman: Riwayat Siswa
+            const riwayatLoadingStats = document.getElementById('riwayat-loading-stats');
+            const riwayatStats = document.getElementById('riwayat-stats');
+            const statPersenIsi = document.getElementById('stat-persen-isi');
+            const statBerjamaah = document.getElementById('stat-berjamaah');
+            const statMunfarid = document.getElementById('stat-munfarid');
+            const statTidak = document.getElementById('stat-tidak');
+            const riwayatFilterTanggal = document.getElementById('riwayat-filter-tanggal');
+            const riwayatResetFilter = document.getElementById('riwayat-reset-filter');
+            const riwayatRefreshData = document.getElementById('riwayat-refresh-data');
+            const riwayatDownloadExcel = document.getElementById('riwayat-download-excel');
+            const riwayatLoadingTable = document.getElementById('riwayat-loading-table');
+            const riwayatTableContainer = document.getElementById('riwayat-table-container');
+            const riwayatTableBody = document.getElementById('riwayat-table-body');
+            const riwayatNoData = document.getElementById('riwayat-no-data');
+            const riwayatRowsPerPageSelect = document.getElementById('riwayat-rows-per-page');
+            const riwayatPageInfo = document.getElementById('riwayat-page-info');
+            const riwayatPrevPage = document.getElementById('riwayat-prev-page');
+            const riwayatNextPage = document.getElementById('riwayat-next-page');
+            
+            // Halaman: Dashboard Admin
+            const adminLoadingStats = document.getElementById('admin-loading-stats');
+            const adminStatsContainer = document.getElementById('admin-stats-container');
+            const adminStatTotalSiswa = document.getElementById('admin-stat-total-siswa');
+            const adminStatMengerjakanHariIni = document.getElementById('admin-stat-mengerjakan-hari-ini');
+            const adminStatTotalLaporan = document.getElementById('admin-stat-total-laporan');
+            const adminStatTotalBerjamaah = document.getElementById('admin-stat-total-berjamaah');
+            const adminStatTotalMunfarid = document.getElementById('admin-stat-total-munfarid');
+            const adminStatTotalTidak = document.getElementById('admin-stat-total-tidak');
+            const adminChartsContainer = document.getElementById('admin-charts-container');
+            const adminChartCanvas = document.getElementById('admin-chart-pengerjaan');
+            const adminChartLoader = document.getElementById('admin-chart-loader');
+            const adminLoadingTopSiswa = document.getElementById('admin-loading-top-siswa');
+            const adminTopSiswaList = document.getElementById('admin-top-siswa-list');
+            const adminTopSiswaNoData = document.getElementById('admin-top-siswa-no-data');
+            const adminLoadingTopQuran = document.getElementById('admin-loading-top-quran');
+            const adminTopQuranList = document.getElementById('admin-top-quran-list');
+            const adminTopQuranNoData = document.getElementById('admin-top-quran-no-data');
+            const adminFilterNama = document.getElementById('admin-filter-nama');
+            const adminFilterTanggal = document.getElementById('admin-filter-tanggal');
+            const adminFilterKelas = document.getElementById('admin-filter-kelas');
+            const adminFilterReset = document.getElementById('admin-filter-reset');
+
+            // Halaman: Rekapitulasi Admin
+            const rekapFilterNama = document.getElementById('rekap-filter-nama');
+            const rekapFilterTanggal = document.getElementById('rekap-filter-tanggal');
+            const rekapFilterKelas = document.getElementById('rekap-filter-kelas');
+            const rekapResetFilter = document.getElementById('rekap-reset-filter');
+            const rekapRefreshData = document.getElementById('rekap-refresh-data');
+            const rekapDownloadExcel = document.getElementById('rekap-download-excel');
+            const rekapLoadingTable = document.getElementById('rekap-loading-table');
+            const rekapTableContainer = document.getElementById('rekap-table-container');
+            const rekapTableBody = document.getElementById('rekap-table-body');
+            const rekapNoData = document.getElementById('rekap-no-data');
+            const rekapRowsPerPageSelect = document.getElementById('rekap-rows-per-page');
+            const rekapPageInfo = document.getElementById('rekap-page-info');
+            const rekapPrevPage = document.getElementById('rekap-prev-page');
+            const rekapNextPage = document.getElementById('rekap-next-page');
+
+            // Halaman: Waktu Sholat
+            const sholatLokasiSelect = document.getElementById('sholat-lokasi-select');
+            const sholatMyLocationBtn = document.getElementById('sholat-my-location-btn');
+            const sholatError = document.getElementById('sholat-error');
+            const sholatLoading = document.getElementById('sholat-loading');
+            const sholatResultsContainer = document.getElementById('sholat-results-container');
+            const sholatCityName = document.getElementById('sholat-city-name');
+            const sholatDateInfo = document.getElementById('sholat-date-info');
+            const sholatNextName = document.getElementById('sholat-next-name');
+            const sholatCountdown = document.getElementById('sholat-countdown');
+            const sholatTimeCards = {
+                Imsak: document.getElementById('time-Imsak'),
+                Fajr: document.getElementById('time-Fajr'),
+                Dhuhr: document.getElementById('time-Dhuhr'),
+                Asr: document.getElementById('time-Asr'),
+                Maghrib: document.getElementById('time-Maghrib'),
+                Isha: document.getElementById('time-Isha'),
+            };
+
+            // Halaman Waktu Sholat (Tambahan Cuaca)
+            const weatherLoading = document.getElementById('weather-loading');
+            const weatherResultsContainer = document.getElementById('weather-results-container');
+            const weatherError = document.getElementById('weather-error');
+            const weatherTodayIcon = document.getElementById('weather-today-icon');
+            const weatherTodayTemp = document.getElementById('weather-today-temp');
+            const weatherTodayDesc = document.getElementById('weather-today-desc');
+            const weatherTomorrowIcon = document.getElementById('weather-tomorrow-icon');
+            const weatherTomorrowTemp = document.getElementById('weather-tomorrow-temp');
+            const weatherTomorrowRange = document.getElementById('weather-tomorrow-range'); // PERUBAHAN ID
+
+            // Halaman: Baca Al-Quran
+            const quranSurahSelect = document.getElementById('quran-surah-select');
+            const quranAyatSearch = document.getElementById('quran-ayat-search');
+            const quranGoBtn = document.getElementById('quran-go-btn');
+            const quranError = document.getElementById('quran-error');
+            const quranLoading = document.getElementById('quran-loading');
+            const quranContentContainer = document.getElementById('quran-content-container');
+            const quranSurahName = document.getElementById('quran-surah-name');
+            const quranSurahInfo = document.getElementById('quran-surah-info');
+            const quranBismillah = document.getElementById('quran-bismillah');
+            const quranAyatList = document.getElementById('quran-ayat-list');
+
+
+            // ===== FUNGSI UTAMA & SISTEM =====
+
+            // Fungsi Inisialisasi
+            function initApp() {
+                // Inisialisasi Ikon
+                lucide.createIcons();
+                
+                // Inisialisasi Jam Realtime
+                startRealtimeClock();
+                
+                // Inisialisasi Event Listener
+                setupLoginListeners();
+                setupSidebarListeners();
+                setupNavigationListeners();
+                setupPageListeners();
+            }
+
+            // Setup Event Listener Halaman Login
+            function setupLoginListeners() {
+                loginRoleBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        loginRoleBtns.forEach(b => b.classList.remove('bg-white', 'text-emerald-600', 'dark:bg-gray-700', 'dark:text-white', 'ring-2', 'ring-white'));
+                        btn.classList.add('bg-white', 'text-emerald-600', 'dark:bg-gray-700', 'dark:text-white', 'ring-2', 'ring-white');
+                        
+                        if (btn.id === 'show-admin-login') {
+                            adminLoginForm.classList.remove('hidden');
+                            siswaLoginForm.classList.add('hidden');
+                        } else {
+                            adminLoginForm.classList.add('hidden');
+                            siswaLoginForm.classList.remove('hidden');
+                        }
+                        loginError.classList.add('hidden');
+                    });
+                });
+
+                loginFormAdmin.addEventListener('submit', handleAdminLogin);
+                loginFormSiswa.addEventListener('submit', handleSiswaLogin);
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+            
+            // Setup Event Listener Sidebar
+            function setupSidebarListeners() {
+                burgerBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                    sidebarOverlay.classList.toggle('hidden');
+                });
+                
+                sidebarOverlay.addEventListener('click', () => {
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('hidden');
+                });
+            }
+            
+            // Setup Event Listener Navigasi Halaman
+            function setupNavigationListeners() {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const pageId = link.getAttribute('data-page');
+                        navigateTo(pageId);
+                        
+                        // Tutup sidebar di mobile setelah klik
+                        if (window.innerWidth < 768) {
+                            sidebar.classList.add('-translate-x-full');
+                            sidebarOverlay.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+
+            // Setup Event Listener Khusus Halaman
+            function setupPageListeners() {
+                // Halaman Kegiatan Siswa
+                kegiatanForm.addEventListener('submit', handleKegiatanSubmit);
+                shalatSelects.forEach(select => {
+                    select.addEventListener('change', (e) => updateSelectColor(e.target));
+                    updateSelectColor(select); // Set warna awal
+                });
+                
+                // Halaman Riwayat Siswa
+                riwayatRefreshData.addEventListener('click', () => fetchData(true));
+                riwayatDownloadExcel.addEventListener('click', () => downloadExcel(currentSiswaData, `Riwayat_${currentUser.nisn}.xlsx`));
+                riwayatFilterTanggal.addEventListener('change', () => renderRiwayatTable(1));
+                riwayatResetFilter.addEventListener('click', () => {
+                    riwayatFilterTanggal.value = '';
+                    renderRiwayatTable(1);
+                });
+                riwayatRowsPerPageSelect.addEventListener('change', (e) => {
+                    riwayatRowsPerPage = parseInt(e.target.value);
+                    renderRiwayatTable(1);
+                });
+                riwayatPrevPage.addEventListener('click', () => {
+                    if (riwayatCurrentPage > 1) renderRiwayatTable(riwayatCurrentPage - 1);
+                });
+                riwayatNextPage.addEventListener('click', () => {
+                    renderRiwayatTable(riwayatCurrentPage + 1);
+                });
+                
+                // Halaman: Dashboard Admin
+                [adminFilterNama, adminFilterTanggal, adminFilterKelas].forEach(el => {
+                    el.addEventListener('input', () => initDashboardAdmin());
+                });
+                adminFilterReset.addEventListener('click', () => {
+                    adminFilterNama.value = '';
+                    adminFilterTanggal.value = '';
+                    adminFilterKelas.value = '';
+                    initDashboardAdmin();
+                });
+
+                // Halaman Rekapitulasi Admin
+                rekapRefreshData.addEventListener('click', () => fetchData(true));
+                rekapDownloadExcel.addEventListener('click', () => {
+                    const filteredData = getFilteredRekapData();
+                    downloadExcel(filteredData, `Rekapitulasi_Ramadhan_SMP_PGRI_CISEWU.xlsx`);
+                });
+                [rekapFilterNama, rekapFilterTanggal, rekapFilterKelas].forEach(el => {
+                    el.addEventListener('input', () => renderRekapTable(1));
+                });
+                rekapResetFilter.addEventListener('click', () => {
+                    rekapFilterNama.value = '';
+                    rekapFilterTanggal.value = '';
+                    rekapFilterKelas.value = '';
+                    renderRekapTable(1);
+                });
+                rekapRowsPerPageSelect.addEventListener('change', (e) => {
+                    rekapRowsPerPage = parseInt(e.target.value);
+                    renderRekapTable(1);
+                });
+                rekapPrevPage.addEventListener('click', () => {
+                    if (rekapCurrentPage > 1) renderRekapTable(rekapCurrentPage - 1);
+                });
+                rekapNextPage.addEventListener('click', () => {
+                    renderRekapTable(rekapCurrentPage + 1);
+                });
+                
+                // Halaman Waktu Sholat
+                sholatLokasiSelect.addEventListener('change', () => {
+                    const city = sholatLokasiSelect.value;
+                    if (city) {
+                        fetchPrayerTimes(city);
+                    }
+                });
+                sholatMyLocationBtn.addEventListener('click', getMyLocation);
+                
+                // Halaman Baca Al-Quran
+                quranGoBtn.addEventListener('click', loadSurahData);
+            }
+            
+            // ===== FUNGSI AUTENTIKASI =====
+            
+            function handleAdminLogin(e) {
+                e.preventDefault();
+                const username = document.getElementById('admin-username').value;
+                const password = document.getElementById('admin-password').value;
+                
+                if (username === 'admin' && password === '12345') {
+                    currentUser = {
+                        nama: 'Admin',
+                        role: 'admin'
+                    };
+                    showMainApp();
+                } else {
+                    loginError.textContent = 'Username atau password admin salah.';
+                    loginError.classList.remove('hidden');
+                }
+            }
+            
+            function handleSiswaLogin(e) {
+                e.preventDefault();
+                const nisn = document.getElementById('siswa-nisn').value;
+                const password = document.getElementById('siswa-password').value;
+                
+                const foundSiswa = STUDENT_DATA.find(siswa => siswa.NISN === nisn);
+                
+                if (foundSiswa && password === '12345') {
+                    currentUser = {
+                        nama: foundSiswa.NAMA,
+                        nisn: foundSiswa.NISN,
+                        kelas: foundSiswa.KELAS,
+                        role: 'siswa'
+                    };
+                    showMainApp();
+                } else {
+                    loginError.textContent = 'NISN atau password siswa salah.';
+                    loginError.classList.remove('hidden');
+                }
+            }
+
+            function handleLogout() {
+                currentUser = null;
+                allSpreadsheetData = [];
+                currentSiswaData = [];
+                
+                appPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                
+                loginError.classList.add('hidden');
+                document.getElementById('admin-password').value = '12345';
+                document.getElementById('siswa-nisn').value = '';
+                document.getElementById('siswa-password').value = '12345';
+            }
+            
+            function showMainApp() {
+                loginPage.classList.add('hidden');
+                appPage.classList.remove('hidden');
+                
+                userNameEl.textContent = currentUser.nama;
+                
+                // Atur menu berdasarkan role
+                if (currentUser.role === 'admin') {
+                    menuAdmin.classList.remove('hidden');
+                    menuSiswa.classList.add('hidden');
+                    populateKelasFilters(); // Isi filter kelas untuk admin
+                    navigateTo('page-dashboard-admin');
+                } else {
+                    menuAdmin.classList.add('hidden');
+                    menuSiswa.classList.remove('hidden');
+                    navigateTo('page-kegiatan');
+                }
+                
+                // Ambil data dari spreadsheet setelah login
+                fetchData(false); // false = jangan paksa refresh
+            }
+            
+            // ===== FUNGSI NAVIGASI & UI =====
+
+            function navigateTo(pageId) {
+                // Sembunyikan semua halaman
+                appPages.forEach(page => page.classList.add('hidden'));
+                
+                // Tampilkan halaman yang dituju
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                }
+                
+                // Update status aktif link navigasi
+                navLinks.forEach(link => {
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('bg-gray-100', 'dark:bg-gray-700', 'font-semibold');
+                    } else {
+                        link.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'font-semibold');
+                    }
+                });
+                
+                // Logika inisialisasi halaman
+                switch(pageId) {
+                    case 'page-kegiatan':
+                        initKegiatanSiswa();
+                        break;
+                    case 'page-riwayat':
+                        initRiwayatSiswa();
+                        break;
+                    case 'page-dashboard-admin':
+                        initDashboardAdmin();
+                        break;
+                    case 'page-rekapitulasi':
+                        initRekapitulasiAdmin();
+                        break;
+                    case 'page-waktu-sholat':
+                        initWaktuSholat();
+                        break;
+                    case 'page-baca-quran':
+                        initBacaQuran();
+                        break;
+                }
+            }
+
+            function setupTheme() {
+                const userTheme = localStorage.getItem('theme');
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (userTheme === 'dark' || (!userTheme && systemTheme)) {
+                    document.documentElement.classList.add('dark');
+                    themeIconMoon.classList.remove('hidden');
+                    themeIconSun.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeIconMoon.classList.add('hidden');
+                    themeIconSun.classList.remove('hidden');
+                }
+
+                themeToggleBtn.addEventListener('click', () => {
+                    if (document.documentElement.classList.toggle('dark')) {
+                        localStorage.setItem('theme', 'dark');
+                        themeIconMoon.classList.remove('hidden');
+                        themeIconSun.classList.add('hidden');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                        themeIconMoon.classList.add('hidden');
+                        themeIconSun.classList.remove('hidden');
+                    }
+                });
+            }
+
+            function startRealtimeClock() {
+                function updateClock() {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta', hour12: false };
+                    
+                    realtimeDateEl.textContent = now.toLocaleDateString('id-ID', optionsDate);
+                    realtimeTimeEl.textContent = now.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':') + ' WIB';
+                }
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+            
+            function getTodayDateString() {
+                const now = new Date();
+                const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
+                // Format: YYYY-MM-DD
+                return now.toLocaleDateString('en-CA', options);
+            }
+
+            function formatTanggalIndo(dateString) {
+                // Input: '2025-10-22' (YYYY-MM-DD)
+                // Output: "Rabu, 22 Oktober 2025" (Contoh)
+                if (!dateString) return '';
+                // Pastikan dateString adalah YYYY-MM-DD
+                const parts = dateString.split('-');
+                if (parts.length !== 3) return dateString; // kembalikan apa adanya jika format salah
+
+                const date = new Date(parts[0], parts[1] - 1, parts[2]);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
+                return date.toLocaleDateString('id-ID', options);
+            }
+
+            // ===== FUNGSI PENGAMBILAN DATA (SPREADSHEET) =====
+
+            async function fetchData(forceRefresh = false) {
+                // Tampilkan loading di semua halaman data
+                showDataLoading(true);
+
+                // Cek cache sederhana (jika tidak dipaksa refresh)
+                if (!forceRefresh && allSpreadsheetData.length > 0) {
+                    console.log('Menggunakan data cache.');
+                    processFetchedData();
+                    showDataLoading(false);
+                    return;
+                }
+                
+                console.log('Mengambil data baru dari Spreadsheet...');
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    
+                    // Pastikan data adalah array
+                    if (Array.isArray(data)) {
+                        allSpreadsheetData = data.map(row => ({
+                            ...row,
+                            // Bersihkan data jika perlu, misal trim spasi
+                            nama: row.nama?.trim(),
+                            kelas: row.kelas?.trim(),
+                            tanggal: row.tanggal.split('T')[0] // Ambil YYYY-MM-DD
+                        }));
+                        console.log('Data berhasil diambil:', allSpreadsheetData.length, 'baris');
+                        processFetchedData();
+                    } else {
+                        throw new Error("Format data tidak valid (bukan array).");
+                    }
+                    
+                } catch (error) {
+                    console.error('Gagal mengambil data dari Spreadsheet:', error);
+                    // Tampilkan error di halaman terkait
+                    showDataError(error.message);
+                } finally {
+                    showDataLoading(false);
+                }
+            }
+            
+            function processFetchedData() {
+                // Pisahkan data untuk siswa saat ini
+                if (currentUser.role === 'siswa') {
+                    currentSiswaData = allSpreadsheetData.filter(row => row.nisn === currentUser.nisn);
+                }
+                
+                // Panggil fungsi render untuk halaman yang sedang aktif
+                const activePage = document.querySelector('.app-page:not(.hidden)');
+                if (activePage) {
+                    switch(activePage.id) {
+                        case 'page-kegiatan':
+                            initKegiatanSiswa(); // Perlu cek ulang submission
+                            break;
+                        case 'page-riwayat':
+                            initRiwayatSiswa();
+                            break;
+                        case 'page-dashboard-admin':
+                            initDashboardAdmin();
+                            break;
+                        case 'page-rekapitulasi':
+                            initRekapitulasiAdmin();
+                            break;
+                    }
+                }
+            }
+
+            function showDataLoading(isLoading) {
+                const loaders = [
+                    riwayatLoadingStats, riwayatLoadingTable,
+                    adminLoadingStats, adminLoadingTopSiswa, adminLoadingTopQuran, adminChartLoader,
+                    rekapLoadingTable
+                ];
+                const contents = [
+                    riwayatStats, riwayatTableContainer,
+                    adminStatsContainer, adminTopSiswaList, adminTopQuranList,
+                    rekapTableContainer, adminChartCanvas
+                ];
+                
+                if (isLoading) {
+                    // Sembunyikan konten, tampilkan loader
+                    contents.forEach(el => el?.classList.add('hidden'));
+                    loaders.forEach(el => el?.classList.remove('hidden'));
+                    
+                    // Tampilkan kontainer chart agar loader terlihat
+                    adminChartsContainer?.classList.remove('hidden');
+                } else {
+                    // Sembunyikan loader
+                    loaders.forEach(el => el?.classList.add('hidden'));
+                    // Tampilkan kontainer (fungsi render yang akan mengaturnya)
+                    // Fungsi initHalaman akan menangani penampian konten
+                }
+            }
+            
+            function showDataError(message) {
+                // Sederhana, bisa dikembangkan
+                console.error("Data Error:", message);
+                alert("Gagal memuat data. Periksa koneksi Anda dan coba lagi.");
+            }
+            
+            // ===== FUNGSI UTILITAS DATA (EXCEL, PAGINATION) =====
+
+            function downloadExcel(data, filename) {
+                try {
+                    const ws = XLSX.utils.json_to_sheet(data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Data");
+                    XLSX.writeFile(wb, filename);
+                } catch (error) {
+                    console.error("Gagal membuat file Excel:", error);
+                    alert("Gagal mengunduh Excel. Silakan coba lagi.");
+                }
+            }
+
+            function getPaginatedData(data, currentPage, rowsPerPage) {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                return data.slice(start, end);
+            }
+            
+            // FUNGSI YANG HILANG DITAMBAHKAN DI SINI
+            function renderShalatCell(status) {
+                if (!status) return '-';
+                let colorClass = '';
+                if (status === 'Berjamaah') {
+                    colorClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                } else if (status === 'Munfarid') {
+                    colorClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                } else if (status === 'Tidak') {
+                    colorClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                }
+                return `<span class="px-2 py-1 rounded-full text-xs font-medium ${colorClass}">${status}</span>`;
+            }
+
+            // ===== PAGE: KEGIATAN SISWA (SISWA) =====
+
+            function initKegiatanSiswa() {
+                // Set info siswa
+                // (Dihapus dari sini, dipindah ke bawah)
+                
+                // Set tanggal
+                const today = getTodayDateString(); // YYYY-MM-DD
+                // (Dihapus dari sini, dipindah ke bawah)
+                
+                // Cek apakah sudah submit hari ini
+                const sudahSubmit = currentSiswaData.some(row => row.tanggal === today);
+                
+                kegiatanStatus.classList.remove('hidden');
+                kegiatanSuccess.classList.add('hidden');
+                kegiatanError.classList.add('hidden');
+                kegiatanLoading.classList.add('hidden');
+                
+                if (sudahSubmit) {
+                    kegiatanFormContainer.classList.add('hidden');
+                    kegiatanSubmitted.classList.remove('hidden');
+                } else {
+                    kegiatanFormContainer.classList.remove('hidden');
+                    kegiatanSubmitted.classList.add('hidden');
+                    // Reset form
+                    kegiatanForm.reset();
+                    shalatSelects.forEach(updateSelectColor);
+
+                    // SET DATA SETELAH RESET
+                    kegiatanNama.value = currentUser.nama;
+                    kegiatanNisn.value = currentUser.nisn;
+                    kegiatanKelas.value = currentUser.kelas;
+                    kegiatanTanggal.value = formatTanggalIndo(today);
+                }
+            }
+
+            async function handleKegiatanSubmit(e) {
+                e.preventDefault();
+                
+                // Tampilkan loading
+                kegiatanStatus.classList.remove('hidden');
+                kegiatanLoading.classList.remove('hidden');
+                kegiatanSuccess.classList.add('hidden');
+                kegiatanError.classList.add('hidden');
+                kegiatanFormContainer.classList.add('hidden');
+                
+                // Ambil data dari form
+                const formData = new FormData(kegiatanForm);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Tambahkan data siswa dan tanggal
+                const today = getTodayDateString();
+                
+                // Tambahkan tanda petik (') sesuai permintaan
+                data.TANGGAL = `'${today}`;
+                data.NISN = `'${currentUser.nisn}`;
+                data.AYAT = `'${data.AYAT}`;
+                data.NAMA = currentUser.nama;
+                data.KELAS = currentUser.kelas;
+                
+                // Kirim data ke Google Script
+                try {
+                    const postData = new FormData();
+                    for (const key in data) {
+                        postData.append(key, data[key]);
+                    }
+
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: postData
+                    });
+                    
+                    const resultText = await response.text();
+                    
+                    if (resultText.includes("berhasil")) {
+                        kegiatanLoading.classList.add('hidden');
+                        kegiatanSuccess.classList.remove('hidden');
+                        
+                        // Paksa refresh data setelah submit berhasil
+                        await fetchData(true);
+                        // Perbarui halaman kegiatan (akan menampilkan pesan "sudah submit")
+                        initKegiatanSiswa();
+                        
+                    } else {
+                        throw new Error(resultText);
+                    }
+                    
+                } catch (error) {
+                    console.error('Gagal mengirim laporan:', error);
+                    kegiatanLoading.classList.add('hidden');
+                    kegiatanError.textContent = `Gagal mengirim: ${error.message}. Coba lagi.`;
+                    kegiatanError.classList.remove('hidden');
+                    kegiatanFormContainer.classList.remove('hidden'); // Tampilkan form lagi
+                }
+            }
+
+            function updateSelectColor(selectElement) {
+                selectElement.classList.remove('select-tidak', 'select-munfarid', 'select-berjamaah', 'dark:select-tidak', 'dark:select-munfarid', 'dark:select-berjamaah');
+                if (selectElement.value === 'Tidak') {
+                    selectElement.classList.add('select-tidak', 'dark:select-tidak');
+                } else if (selectElement.value === 'Munfarid') {
+                    selectElement.classList.add('select-munfarid', 'dark:select-munfarid');
+                } else if (selectElement.value === 'Berjamaah') {
+                    selectElement.classList.add('select-berjamaah', 'dark:select-berjamaah');
+                }
+            }
+
+            // ===== PAGE: RIWAYAT SISWA (SISWA) =====
+
+            function initRiwayatSiswa() {
+                if (currentSiswaData.length === 0 && allSpreadsheetData.length === 0) {
+                    // Data belum ter-load, tampilkan loader
+                    riwayatLoadingStats.classList.remove('hidden');
+                    riwayatStats.classList.add('hidden');
+                    riwayatLoadingTable.classList.remove('hidden');
+                    riwayatTableContainer.classList.add('hidden');
+                } else {
+                    // Data sudah ada, render
+                    riwayatLoadingStats.classList.add('hidden');
+                    riwayatStats.classList.remove('hidden');
+                    riwayatLoadingTable.classList.add('hidden');
+                    riwayatTableContainer.classList.remove('hidden');
+                    
+                    updateRiwayatStats();
+                    renderRiwayatTable(1);
+                }
+            }
+
+            function updateRiwayatStats() {
+                const filteredData = getFilteredRiwayatData();
+                
+                const totalHariRamadhan = 30; // Asumsi
+                const totalIsi = filteredData.length;
+                const persenIsi = (totalIsi / totalHariRamadhan) * 100;
+                
+                let totalBerjamaah = 0;
+                let totalMunfarid = 0;
+                let totalTidak = 0;
+                
+                const shalatColumns = ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'tarawih'];
+                
+                filteredData.forEach(row => {
+                    shalatColumns.forEach(col => {
+                        if (row[col] === 'Berjamaah') totalBerjamaah++;
+                        else if (row[col] === 'Munfarid') totalMunfarid++;
+                        else if (row[col] === 'Tidak') totalTidak++;
+                    });
+                });
+
+                statPersenIsi.textContent = `${persenIsi.toFixed(0)}%`;
+                statBerjamaah.textContent = totalBerjamaah;
+                statMunfarid.textContent = totalMunfarid;
+                statTidak.textContent = totalTidak;
+            }
+            
+            function getFilteredRiwayatData() {
+                let data = [...currentSiswaData];
+                const filterTanggal = riwayatFilterTanggal.value; // YYYY-MM-DD
+                
+                if (filterTanggal) {
+                    data = data.filter(row => row.tanggal === filterTanggal);
+                }
+                
+                // Urutkan dari terbaru
+                data.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+                return data;
+            }
+
+            function renderRiwayatTable(page) {
+                const filteredData = getFilteredRiwayatData();
+                
+                // Update stats berdasarkan filter
+                updateRiwayatStats(); 
+                
+                riwayatCurrentPage = page;
+                const totalRows = filteredData.length;
+                const totalPages = Math.ceil(totalRows / riwayatRowsPerPage);
+                
+                if (totalRows === 0) {
+                    riwayatTableBody.innerHTML = '';
+                    riwayatNoData.classList.remove('hidden');
+                    riwayatPageInfo.textContent = 'Halaman 0 dari 0';
+                } else {
+                    riwayatNoData.classList.add('hidden');
+                    const paginatedData = getPaginatedData(filteredData, riwayatCurrentPage, riwayatRowsPerPage);
+                    
+                    riwayatTableBody.innerHTML = paginatedData.map(row => `
+                        <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 font-medium">${formatTanggalIndo(row.tanggal)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.subuh)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.dzuhur)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.ashar)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.maghrib)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.isya)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.tarawih)}</td>
+                            <td class="px-6 py-4">${row.surah || '-'}</td>
+                            <td class="px-6 py-4">${row.ayat || '-'}</td>
+                        </tr>
+                    `).join('');
+                    
+                    riwayatPageInfo.textContent = `Halaman ${riwayatCurrentPage} dari ${totalPages}`;
+                }
+                
+                // Update tombol pagination
+                riwayatPrevPage.disabled = riwayatCurrentPage === 1;
+                riwayatNextPage.disabled = riwayatCurrentPage === totalPages || totalPages === 0;
+            }
+            
+            // ===== PAGE: DASHBOARD (ADMIN) =====
+
+            function initDashboardAdmin() {
+                if (allSpreadsheetData.length === 0) {
+                    adminLoadingStats.classList.remove('hidden');
+                    adminStatsContainer.classList.add('hidden');
+                    
+                    adminChartsContainer.classList.remove('hidden'); // Tampilkan container
+                    adminChartCanvas.classList.add('hidden'); // Sembunyikan canvas
+                    adminChartLoader.classList.remove('hidden'); // Tampilkan loader chart
+                    
+                    adminLoadingTopSiswa.classList.remove('hidden');
+                    adminTopSiswaList.classList.add('hidden');
+                    
+                    adminLoadingTopQuran.classList.remove('hidden'); // Tampilkan loader quran
+                    adminTopQuranList.classList.add('hidden'); // Sembunyikan list quran
+                    return; // Keluar sampai data dimuat
+                }
+                
+                // Data sudah dimuat, sembunyikan loader dan tampilkan konten
+                adminLoadingStats.classList.add('hidden');
+                adminStatsContainer.classList.remove('hidden');
+                
+                adminChartsContainer.classList.remove('hidden');
+                adminChartLoader.classList.add('hidden');
+                adminChartCanvas.classList.remove('hidden');
+                
+                adminLoadingTopSiswa.classList.add('hidden');
+                adminLoadingTopQuran.classList.add('hidden');
+                
+                // Ambil data yang sudah difilter
+                const dataForStats = getFilteredAdminData(false); // Filter penuh (termasuk tanggal)
+                const dataForCharts = getFilteredAdminData(true); // Filter nama/kelas (abaikan tanggal)
+
+                // HITUNG JUMLAH SISWA DINAMIS BERDASARKAN FILTER
+                const filterNama = adminFilterNama.value.toLowerCase();
+                const filterKelas = adminFilterKelas.value;
+                
+                let filteredStudents = [...STUDENT_DATA];
+                if (filterNama) {
+                    filteredStudents = filteredStudents.filter(s => s.NAMA.toLowerCase().includes(filterNama));
+                }
+                if (filterKelas) {
+                    filteredStudents = filteredStudents.filter(s => s.KELAS === filterKelas);
+                }
+                const filteredStudentCount = filteredStudents.length;
+
+                // Panggil fungsi render dengan data yang sudah difilter
+                renderAdminStats(dataForStats, dataForCharts, filteredStudentCount);
+                renderAdminChart(dataForCharts);
+                renderAdminTopSiswa(dataForStats);
+                renderAdminTopQuran(dataForStats);
+            }
+
+            function getFilteredAdminData(ignoreTanggal = false) {
+                const filterNama = adminFilterNama.value.toLowerCase();
+                const filterTanggal = adminFilterTanggal.value; // YYYY-MM-DD
+                const filterKelas = adminFilterKelas.value;
+                
+                let data = [...allSpreadsheetData];
+                
+                if (filterNama) {
+                    data = data.filter(row => row.nama?.toLowerCase().includes(filterNama));
+                }
+                if (!ignoreTanggal && filterTanggal) {
+                    data = data.filter(row => row.tanggal === filterTanggal);
+                }
+                if (filterKelas) {
+                    data = data.filter(row => row.kelas === filterKelas);
+                }
+                return data;
+            }
+
+            function renderAdminStats(data, dataFilteredForToday, filteredStudentCount) {
+                const today = getTodayDateString();
+                const shalatColumns = ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'tarawih'];
+                
+                // Stat "Hari Ini" menggunakan dataForCharts (filter nama/kelas, abaikan tanggal)
+                // lalu difilter manual ke hari ini
+                const dataHariIni = dataFilteredForToday.filter(row => row.tanggal === today);
+                let mengerjakanHariIni = new Set(dataHariIni.map(r => r.nisn));
+
+                // Statistik lain menggunakan dataForStats (filter penuh)
+                let totalLaporan = data.length;
+                let totalBerjamaah = 0;
+                let totalMunfarid = 0;
+                let totalTidak = 0;
+                
+                data.forEach(row => {
+                    shalatColumns.forEach(col => {
+                        if (row[col] === 'Berjamaah') totalBerjamaah++;
+                        else if (row[col] === 'Munfarid') totalMunfarid++;
+                        else if (row[col] === 'Tidak') totalTidak++;
+                    });
+                });
+                
+                // Stat Total Siswa sekarang dinamis
+                adminStatTotalSiswa.textContent = filteredStudentCount;
+                // Stat Hari Ini hanya difilter nama/kelas
+                adminStatMengerjakanHariIni.textContent = mengerjakanHariIni.size;
+                // Stat lain difilter penuh
+                adminStatTotalLaporan.textContent = totalLaporan;
+                adminStatTotalBerjamaah.textContent = totalBerjamaah;
+                adminStatTotalMunfarid.textContent = totalMunfarid;
+                adminStatTotalTidak.textContent = totalTidak;
+            }
+
+            function renderAdminChart(data) {
+                const labels = [];
+                const chartData = [];
+                const today = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+                
+                for (let i = 9; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - i);
+                    const dateString = date.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD
+                    const shortLabel = date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                    
+                    labels.push(shortLabel);
+                    
+                    // Gunakan data yang sudah difilter (berdasarkan nama/kelas)
+                    const submissions = data.filter(row => row.tanggal === dateString);
+                    const uniqueSiswa = new Set(submissions.map(s => s.nisn));
+                    chartData.push(uniqueSiswa.size);
+                }
+                
+                const ctx = adminChartCanvas.getContext('2d');
+                
+                if (adminChart) {
+                    adminChart.destroy();
+                }
+                
+                adminChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah Siswa Mengerjakan',
+                            data: chartData,
+                            borderColor: 'rgb(16, 185, 129)', // emerald-600
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 300, // Sesuai permintaan
+                                grid: {
+                                    color: document.documentElement.classList.contains('dark') ? '#4a5568' : '#e5e7eb'
+                                },
+                                ticks: {
+                                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+                                    stepSize: 50
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function renderAdminTopSiswa(data) {
+                const jamaahCount = {};
+                
+                // Gunakan data yang sudah difilter
+                data.forEach(row => {
+                    const nama = row.nama || 'Tanpa Nama';
+                    if (!jamaahCount[nama]) {
+                        jamaahCount[nama] = 0;
+                    }
+                    
+                    ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'tarawih'].forEach(col => {
+                        if (row[col] === 'Berjamaah') {
+                            jamaahCount[nama]++;
+                        }
+                    });
+                });
+                
+                const sortedSiswa = Object.entries(jamaahCount)
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .slice(0, 10);
+                    
+                if (sortedSiswa.length === 0) {
+                    adminTopSiswaList.classList.add('hidden');
+                    adminTopSiswaNoData.classList.remove('hidden');
+                } else {
+                    adminTopSiswaNoData.classList.add('hidden');
+                    adminTopSiswaList.classList.remove('hidden');
+                    adminTopSiswaList.innerHTML = sortedSiswa.map(([nama, count]) => `
+                        <li class="flex justify-between items-center py-2 border-b dark:border-gray-700 last:border-b-0">
+                            <span class="truncate">${nama}</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">${count}</span>
+                        </li>
+                    `).join('');
+                }
+            }
+
+            // Fungsi baru untuk parse ayat
+            function parseAyatCount(ayatStr) {
+                if (!ayatStr) return 0;
+                let total = 0;
+                try {
+                    // Hapus tanda petik di awal/akhir
+                    const cleanStr = ayatStr.replace(/^'|'$/g, '');
+                    if (!cleanStr) return 0;
+
+                    const parts = cleanStr.split(',');
+                    for (const part of parts) {
+                        const trimmedPart = part.trim();
+                        if (trimmedPart.includes('-')) {
+                            const range = trimmedPart.split('-');
+                            const start = parseInt(range[0], 10);
+                            const end = parseInt(range[1], 10);
+                            if (!isNaN(start) && !isNaN(end) && end >= start) {
+                                total += (end - start + 1);
+                            }
+                        } else {
+                            if (!isNaN(parseInt(trimmedPart, 10))) {
+                                total += 1; // Hitung sebagai 1 ayat
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Error parsing ayat count for "${ayatStr}":`, e);
+                    return 0; // Gagal parse, anggap 0
+                }
+                return total;
+            }
+
+            // Fungsi baru untuk top quran
+            function renderAdminTopQuran(data) {
+                const quranCount = {};
+                
+                // Gunakan data yang sudah difilter
+                data.forEach(row => {
+                    const nama = row.nama || 'Tanpa Nama';
+                    if (!quranCount[nama]) {
+                        quranCount[nama] = 0;
+                    }
+                    quranCount[nama] += parseAyatCount(row.ayat);
+                });
+                
+                const sortedSiswa = Object.entries(quranCount)
+                    .filter(([, count]) => count > 0) // Hanya tampilkan yang pernah baca
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .slice(0, 10);
+                    
+                if (sortedSiswa.length === 0) {
+                    adminTopQuranList.classList.add('hidden');
+                    adminTopQuranNoData.classList.remove('hidden');
+                } else {
+                    adminTopQuranNoData.classList.add('hidden');
+                    adminTopQuranList.classList.remove('hidden');
+                    adminTopQuranList.innerHTML = sortedSiswa.map(([nama, count]) => `
+                        <li class="flex justify-between items-center py-2 border-b dark:border-gray-700 last:border-b-0">
+                            <span class="truncate">${nama}</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">${count} ayat</span>
+                        </li>
+                    `).join('');
+                }
+            }
+
+
+            // ===== PAGE: REKAPITULASI (ADMIN) =====
+
+            function initRekapitulasiAdmin() {
+                if (allSpreadsheetData.length === 0) {
+                    rekapLoadingTable.classList.remove('hidden');
+                    rekapTableContainer.classList.add('hidden');
+                } else {
+                    rekapLoadingTable.classList.add('hidden');
+                    rekapTableContainer.classList.remove('hidden');
+                    renderRekapTable(1);
+                }
+            }
+            
+            function populateKelasFilters() {
+                const uniqueKelas = [...new Set(STUDENT_DATA.map(s => s.KELAS))].sort();
+                
+                // Hapus opsi lama
+                rekapFilterKelas.innerHTML = '<option value="">Semua Kelas</option>';
+                adminFilterKelas.innerHTML = '<option value="">Semua Kelas</option>';
+                
+                uniqueKelas.forEach(kelas => {
+                    const option = document.createElement('option');
+                    option.value = kelas;
+                    option.textContent = kelas;
+                    rekapFilterKelas.appendChild(option.cloneNode(true));
+                    adminFilterKelas.appendChild(option);
+                });
+            }
+
+            function getFilteredRekapData() {
+                const filterNama = rekapFilterNama.value.toLowerCase();
+                const filterTanggal = rekapFilterTanggal.value; // YYYY-MM-DD
+                const filterKelas = rekapFilterKelas.value;
+                
+                let data = [...allSpreadsheetData];
+                
+                if (filterNama) {
+                    data = data.filter(row => row.nama?.toLowerCase().includes(filterNama));
+                }
+                if (filterTanggal) {
+                    data = data.filter(row => row.tanggal === filterTanggal);
+                }
+                if (filterKelas) {
+                    data = data.filter(row => row.kelas === filterKelas);
+                }
+                
+                // Urutkan dari terbaru
+                data.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+                return data;
+            }
+
+            function renderRekapTable(page) {
+                const filteredData = getFilteredRekapData();
+                
+                rekapCurrentPage = page;
+                const totalRows = filteredData.length;
+                const totalPages = Math.ceil(totalRows / rekapRowsPerPage);
+                
+                if (totalRows === 0) {
+                    rekapTableBody.innerHTML = '';
+                    rekapNoData.classList.remove('hidden');
+                    rekapPageInfo.textContent = 'Halaman 0 dari 0';
+                } else {
+                    rekapNoData.classList.add('hidden');
+                    const paginatedData = getPaginatedData(filteredData, rekapCurrentPage, rekapRowsPerPage);
+                    
+                    rekapTableBody.innerHTML = paginatedData.map(row => `
+                        <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 font-medium">${formatTanggalIndo(row.tanggal)}</td>
+                            <td class="px-6 py-4">${row.nisn || '-'}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${row.nama || '-'}</td>
+                            <td class="px-6 py-4">${row.kelas || '-'}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.subuh)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.dzuhur)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.ashar)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.maghrib)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.isya)}</td>
+                            <td class="px-6 py-4">${renderShalatCell(row.tarawih)}</td>
+                            <td class="px-6 py-4">${row.surah || '-'}</td>
+                            <td class="px-6 py-4">${row.ayat || '-'}</td>
+                        </tr>
+                    `).join('');
+                    
+                    rekapPageInfo.textContent = `Halaman ${rekapCurrentPage} dari ${totalPages}`;
+                }
+                
+                // Update tombol pagination
+                rekapPrevPage.disabled = rekapCurrentPage === 1;
+                rekapNextPage.disabled = rekapCurrentPage === totalPages || totalPages === 0;
+            }
+
+            // ===== PAGE: WAKTU SHOLAT (BERSAMA) =====
+            
+            function initWaktuSholat() {
+                // Coba fetch lokasi default (misal: Cisewu atau Jakarta) jika belum ada data
+                if (sholatCityName.textContent === 'Kota') {
+                    fetchPrayerTimes('Cisewu'); 
+                }
+            }
+
+            function showSholatLoading(isLoading) {
+                if (isLoading) {
+                    sholatLoading.classList.remove('hidden');
+                    sholatResultsContainer.classList.add('hidden');
+                    sholatError.classList.add('hidden');
+                } else {
+                    sholatLoading.classList.add('hidden');
+                }
+            }
+            
+            function showSholatError(message) {
+                sholatError.textContent = message;
+                sholatError.classList.remove('hidden');
+                sholatLoading.classList.add('hidden');
+                sholatResultsContainer.classList.add('hidden');
+            }
+
+            async function fetchPrayerTimes(city, coords = null) {
+                showSholatLoading(true);
+                // Sembunyikan info cuaca sebelumnya
+                weatherLoading.classList.add('hidden');
+                weatherResultsContainer.classList.add('hidden');
+                weatherError.classList.add('hidden');
+
+                if (sholatCountdownInterval) clearInterval(sholatCountdownInterval);
+                
+                let url;
+                let cityName = city; // Simpan nama kota untuk tampilan dan cuaca
+                let apiLat, apiLon;
+
+                if (coords) {
+                    url = `https://api.aladhan.com/v1/timings?latitude=${coords.latitude}&longitude=${coords.longitude}&method=2`;
+                    cityName = 'Lokasi Saya'; // Untuk tampilan
+                    apiLat = coords.latitude;
+                    apiLon = coords.longitude;
+                } else {
+                    url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`;
+                }
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Lokasi tidak ditemukan atau API error.");
+                    
+                    const result = await response.json();
+                    if (result.code !== 200) throw new Error(result.data || "Gagal mengambil data.");
+
+                    const timings = result.data.timings;
+                    const date = result.data.date.readable;
+                    
+                    // PERBAIKAN: Ambil lat/lon dari API sholat
+                    if (!coords) {
+                        apiLat = result.data.meta.latitude;
+                        apiLon = result.data.meta.longitude;
+                    }
+                    
+                    // Update UI
+                    sholatCityName.textContent = cityName;
+                    sholatDateInfo.textContent = date;
+                    
+                    Object.keys(sholatTimeCards).forEach(key => {
+                        if (timings[key]) {
+                            sholatTimeCards[key].textContent = timings[key];
+                        }
+                    });
+                    
+                    sholatResultsContainer.classList.remove('hidden');
+                    sholatError.classList.add('hidden');
+                    
+                    startSholatCountdown(timings);
+
+                    // ===== PERBAIKAN FITUR CUACA =====
+                    // Panggil API cuaca baru menggunakan koordinat
+                    if (apiLat && apiLon) {
+                        await fetchWeather(apiLat, apiLon);
+                    } else {
+                        // Sembunyikan jika tidak ada koordinat
+                        weatherLoading.classList.add('hidden');
+                        weatherResultsContainer.classList.add('hidden');
+                    }
+                    // ===================================
+                    
+                } catch (error) {
+                    console.error("Error fetching prayer times:", error);
+                    showSholatError(error.message);
+                } finally {
+                    showSholatLoading(false);
+                }
+            }
+
+            function getMyLocation() {
+                if (!navigator.geolocation) {
+                    showSholatError("Geolocation tidak didukung oleh browser Anda.");
+                    return;
+                }
+                
+                showSholatLoading(true);
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const coords = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        // fetchPrayerTimes sekarang akan menangani cuaca juga
+                        fetchPrayerTimes(null, coords);
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        showSholatError("Gagal mendapatkan lokasi Anda. Pastikan izin lokasi diberikan.");
+                    }
+                );
+            }
+            
+            function startSholatCountdown(timings) {
+                if (sholatCountdownInterval) clearInterval(sholatCountdownInterval);
+
+                const prayerTimes = [
+                    { name: 'Subuh', time: timings.Fajr, key: 'Fajr' },
+                    { name: 'Zuhur', time: timings.Dhuhr, key: 'Dhuhr' },
+                    { name: 'Asar', time: timings.Asr, key: 'Asr' },
+                    { name: 'Magrib', time: timings.Maghrib, key: 'Maghrib' },
+                    { name: 'Isya', time: timings.Isha, key: 'Isha' },
+                    // Untuk hari berikutnya
+                    { name: 'Subuh', time: timings.Fajr, key: 'Fajr', nextDay: true } 
+                ];
+
+                function updateCountdown() {
+                    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+                    let nextPrayer = null;
+
+                    for (const prayer of prayerTimes) {
+                        const [hours, minutes] = prayer.time.split(':');
+                        const prayerDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+                        
+                        if (prayer.nextDay) {
+                            prayerDate.setDate(prayerDate.getDate() + 1);
+                        }
+
+                        if (prayerDate > now) {
+                            nextPrayer = { name: prayer.name, date: prayerDate, key: prayer.key };
+                            break;
+                        }
+                    }
+                    
+                    // Jika tidak ada, berarti sholat berikutnya adalah Subuh besok
+                    if (!nextPrayer) {
+                        const [hours, minutes] = prayerTimes[0].time.split(':');
+                        const prayerDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, hours, minutes);
+                        nextPrayer = { name: prayerTimes[0].name, date: prayerDate, key: prayerTimes[0].key };
+                    }
+
+                    // Sorot kartu waktu sholat berikutnya
+                    document.querySelectorAll('.sholat-time-card').forEach(card => {
+                        card.classList.remove('ring-4', 'ring-emerald-500', 'scale-105');
+                        card.classList.add('bg-white', 'dark:bg-gray-800');
+                    });
+                    
+                    const nextPrayerTimeEl = sholatTimeCards[nextPrayer.key];
+                    if (nextPrayerTimeEl) {
+                        const card = nextPrayerTimeEl.closest('.sholat-time-card');
+                        card.classList.add('ring-4', 'ring-emerald-500', 'scale-105');
+                        card.classList.remove('bg-white', 'dark:bg-gray-800');
+                        card.classList.add('bg-emerald-50', 'dark:bg-emerald-900');
+                    }
+                    
+                    // Update countdown text
+                    const diff = nextPrayer.date.getTime() - now.getTime();
+                    if (diff < 0) {
+                        sholatCountdown.textContent = "00:00:00";
+                        return;
+                    }
+                    
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    sholatNextName.textContent = nextPrayer.name;
+                    sholatCountdown.textContent = 
+                        `${String(hours).padStart(2, '0')}:` +
+                        `${String(minutes).padStart(2, '0')}:` +
+                        `${String(seconds).padStart(2, '0')}`;
+                }
+                
+                updateCountdown();
+                sholatCountdownInterval = setInterval(updateCountdown, 1000);
+            }
+
+            // (Fungsi Baru) Helper Ikon & Deskripsi Cuaca (WMO)
+            function getWeatherDetailsFromWMO(wmoCode) {
+                let iconName = 'cloud-sun'; // Default
+                let colorClass = 'text-blue-500'; // Default
+                let description = 'Berawan Sebagian'; // Default
+
+                if ([0].includes(wmoCode)) {
+                    iconName = 'sun';
+                    colorClass = 'text-yellow-500';
+                    description = 'Cerah';
+                } else if ([1, 2].includes(wmoCode)) {
+                    iconName = 'cloud-sun';
+                    colorClass = 'text-blue-500';
+                    description = 'Berawan Sebagian';
+                } else if ([3].includes(wmoCode)) {
+                    iconName = 'cloud';
+                    colorClass = 'text-gray-500';
+                    description = 'Berawan';
+                } else if ([45, 48].includes(wmoCode)) {
+                    iconName = 'cloud-fog';
+                    colorClass = 'text-gray-400';
+                    description = 'Kabut';
+                } else if ([51, 53, 55, 56, 57].includes(wmoCode)) {
+                    iconName = 'cloud-drizzle';
+                    colorClass = 'text-blue-600';
+                    description = 'Gerimis';
+                } else if ([61, 63, 65, 66, 67, 80, 81, 82].includes(wmoCode)) {
+                    iconName = 'cloud-rain';
+                    colorClass = 'text-blue-700';
+                    description = 'Hujan';
+                } else if ([71, 73, 75, 77, 85, 86].includes(wmoCode)) {
+                    iconName = 'cloud-snow';
+                    colorClass = 'text-cyan-400';
+                    description = 'Salju';
+                } else if ([95, 96, 99].includes(wmoCode)) {
+                    iconName = 'cloud-lightning';
+                    colorClass = 'text-purple-600';
+                    description = 'Badai Petir';
+                }
+                
+                const iconHtml = `<i data-lucide="${iconName}" class="w-16 h-16 mx-auto ${colorClass} mb-2"></i>`;
+                return { iconHtml, description };
+            }
+
+            // (Fungsi Baru) Ambil Data Cuaca dari open-meteo.com
+            async function fetchWeather(latitude, longitude) {
+                weatherLoading.classList.remove('hidden');
+                weatherResultsContainer.classList.add('hidden');
+                weatherError.classList.add('hidden');
+                
+                try {
+                    // API ini tidak memerlukan proxy
+                    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=2`;
+
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data cuaca (API Error).');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.current_weather || !data.daily) {
+                        throw new Error('Data cuaca tidak lengkap dari API.');
+                    }
+
+                    // Hari Ini (dari current_weather)
+                    const todayWeather = getWeatherDetailsFromWMO(data.current_weather.weathercode);
+                    weatherTodayTemp.textContent = `${data.current_weather.temperature.toFixed(0)} °C`;
+                    weatherTodayDesc.textContent = todayWeather.description;
+                    weatherTodayIcon.innerHTML = todayWeather.iconHtml;
+
+                    // Besok (dari daily, index 1)
+                    if (data.daily.weathercode.length > 1) {
+                        const tomorrowWeather = getWeatherDetailsFromWMO(data.daily.weathercode[1]);
+                        const tempMax = data.daily.temperature_2m_max[1].toFixed(0);
+                        const tempMin = data.daily.temperature_2m_min[1].toFixed(0);
+                        
+                        weatherTomorrowTemp.textContent = `${tempMax} °C`; // Tampilkan Max temp
+                        weatherTomorrowRange.textContent = `Min: ${tempMin} °C / Max: ${tempMax} °C`;
+                        weatherTomorrowIcon.innerHTML = tomorrowWeather.iconHtml;
+                    }
+                    
+                    weatherResultsContainer.classList.remove('hidden');
+                    
+                } catch (error) {
+                    console.error('Gagal mengambil data cuaca:', error);
+                    weatherError.textContent = 'Gagal memuat info cuaca. Coba muat ulang.';
+                    weatherError.classList.remove('hidden');
+                } finally {
+                    weatherLoading.classList.add('hidden');
+                    // Ganti ikon Lucide yang baru ditambahkan
+                    lucide.createIcons();
+                }
+            }
+            
+            // ===== PAGE: BACA AL-QURAN (BERSAMA) =====
+            
+            let surahListCache = [];
+            
+            async function initBacaQuran() {
+                if (surahListCache.length > 0) return; // Sudah di-load
+                
+                try {
+                    const response = await fetch('https://equran.id/api/v2/surat');
+                    if (!response.ok) throw new Error("Gagal memuat daftar surah.");
+                    
+                    const result = await response.json();
+                    if (result.code !== 200) throw new Error(result.message);
+                    
+                    surahListCache = result.data;
+                    quranSurahSelect.innerHTML = '<option value="">-- Pilih Surah --</option>';
+                    surahListCache.forEach(surah => {
+                        const option = document.createElement('option');
+                        option.value = surah.nomor;
+                        option.textContent = `${surah.nomor}. ${surah.namaLatin} (${surah.nama})`;
+                        quranSurahSelect.appendChild(option);
+                    });
+                    
+                } catch (error) {
+                    console.error("Error fetching surah list:", error);
+                    quranSurahSelect.innerHTML = '<option value="">Gagal memuat surah</option>';
+                    showQuranError(error.message);
+                }
+            }
+
+            function showQuranLoading(isLoading) {
+                if (isLoading) {
+                    quranLoading.classList.remove('hidden');
+                    quranContentContainer.classList.add('hidden');
+                    quranError.classList.add('hidden');
+                } else {
+                    quranLoading.classList.add('hidden');
+                }
+            }
+
+            function showQuranError(message) {
+                quranError.textContent = message;
+                quranError.classList.remove('hidden');
+                quranLoading.classList.add('hidden');
+                quranContentContainer.classList.add('hidden');
+            }
+
+            async function loadSurahData() {
+                const surahNumber = quranSurahSelect.value;
+                const ayatNumber = quranAyatSearch.value;
+                
+                if (!surahNumber) {
+                    showQuranError("Silakan pilih surah terlebih dahulu.");
+                    return;
+                }
+                
+                showQuranLoading(true);
+                
+                try {
+                    const response = await fetch(`https://equran.id/api/v2/surat/${surahNumber}`);
+                    if (!response.ok) throw new Error("Gagal memuat data surah.");
+                    
+                    const result = await response.json();
+                    if (result.code !== 200) throw new Error(result.message);
+                    
+                    const surahData = result.data;
+                    
+                    // Update Info Surah
+                    quranSurahName.textContent = `${surahData.namaLatin} (${surahData.nama})`;
+                    quranSurahInfo.textContent = `${surahData.tempatTurun} • ${surahData.jumlahAyat} Ayat • Arti: ${surahData.arti}`;
+                    
+                    // Tampilkan Bismillah (jika bukan At-Taubah)
+                    if (surahData.nomor !== 1 && surahData.nomor !== 9) {
+                        quranBismillah.classList.remove('hidden');
+                    } else {
+                        quranBismillah.classList.add('hidden');
+                    }
+                    
+                    // Render Ayat
+                    quranAyatList.innerHTML = surahData.ayat.map(ayat => `
+                        <div id="ayat-${ayat.nomorAyat}" class="py-4 border-b dark:border-gray-700">
+                            <p class="text-right text-2xl md:text-3xl leading-relaxed mb-4" style="font-family: 'Noto Naskh Arabic', serif;">
+                                ${ayat.teksArab}
+                                <span class="text-sm font-mono p-1 rounded-full border dark:border-gray-600">${ayat.nomorAyat}</span>
+                            </p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2 italic">${ayat.teksLatin}</p>
+                            <p class="text-gray-700 dark:text-gray-300">${ayat.teksIndonesia}</p>
+                        </div>
+                    `).join('');
+                    
+                    quranContentContainer.classList.remove('hidden');
+                    quranError.classList.add('hidden');
+                    
+                    // Scroll ke ayat jika dicari
+                    if (ayatNumber) {
+                        const ayatElement = document.getElementById(`ayat-${ayatNumber}`);
+                        if (ayatElement) {
+                            ayatElement.scrollIntoView({ behavior: 'smooth' });
+                            ayatElement.classList.add('bg-emerald-50', 'dark:bg-emerald-900', 'p-4', 'rounded-lg');
+                        }
+                    } else {
+                        // Scroll ke atas
+                        quranContentContainer.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    
+                } catch (error) {
+                    console.error("Error fetching surah data:", error);
+                    showQuranError(error.message);
+                } finally {
+                    showQuranLoading(false);
+                }
+            }
+
+            // ===== JALANKAN APLIKASI =====
+            initApp();
+            
+        });
+    </script>
+</body>
+</html>
+
